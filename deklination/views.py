@@ -108,7 +108,7 @@ def gender_quiz_select_question(request, context, nouns):
                 if len(review) == 0:
                     context['noun'] = noun
                     break
-    else:
+    elif len(nouns) > 0:
         context['noun'] = random.choice(nouns)
 
 
@@ -123,17 +123,18 @@ def gender_quiz(request):
     gender_quiz_select_question(request, context, nouns)
 
     context['count'] = nouns.count()
-    if context['noun'].gender == 'M':
-        context['article'] = "Der"
-        context['gender'] = "masculine"
-    elif context['noun'].gender == 'N':
-        context['article'] = "Das"
-        context['gender'] = "neuter"
-    else:
-        context['article'] = "Die"
-        context['gender'] = "feminine"
-    
-    context['noun'].noun = context['noun'].noun.replace("|", " | ")
+    if len(nouns) > 0:
+        if context['noun'].gender == 'M':
+            context['article'] = "Der"
+            context['gender'] = "masculine"
+        elif context['noun'].gender == 'N':
+            context['article'] = "Das"
+            context['gender'] = "neuter"
+        else:
+            context['article'] = "Die"
+            context['gender'] = "feminine"
+        context['noun'].noun = context['noun'].noun.replace("|", " | ")
+
     return render(request, 'deklination/gender_quiz.html', context)
 
 

@@ -68,6 +68,10 @@ class TestDeklination(TestCase):
         check_authorized_items(self, resp)
         self.check_quiz_options(resp)
 
+class TestGenderQuizEmptyDB(TestCase):
+    def test_gender_quiz_empty(self):
+        resp = self.client.get("/deklination/gender_quiz/", follow=True)
+        
 
 """
 http://www.obeythetestinggoat.com/how-to-get-selenium-to-wait-for-page-load-after-a-click.html

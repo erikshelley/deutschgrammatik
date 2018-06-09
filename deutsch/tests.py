@@ -36,7 +36,7 @@ class TestAdminPanel_UnAuthorized(TestCase):
             "/admin/deklination/",
             "/admin/deklination/noun/",
             "/admin/deklination/genderquizscore/",
-            "/admin/deklination/genderquizscore/132/change/",
+            "/admin/deklination/genderquizscore/132/",
             "/admin/logout/"
         ]
         for page in admin_pages:
@@ -65,7 +65,7 @@ class TestAdminPanel_Authorized(TestCase):
             "/admin/deklination/",
             "/admin/deklination/noun/",
             "/admin/deklination/genderquizscore/",
-            "/admin/deklination/genderquizscore/132/change/",
+            "/admin/deklination/genderquizscore/132/",
             "/admin/logout/"
         ]
         for page in admin_pages:
