@@ -21,6 +21,6 @@ noun_import.py
 env/
 
 # server-only file
-deutschgrammatik.fcgi
+dispatch.fcgi
 .htaccess
 
