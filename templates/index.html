@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'header.html' %}
+
+  <body>
+
+{% include 'top_nav.html' %}
+
+    <main role="main">
+
+      {% block lead %}
+      <div class="jumbotron pb-2">
+        <div class="container pt-4">
+          <h1 class="display-4">{% block lead-title %}Willkommen{% endblock lead-title %}</h1>
+          <p class="lead">{% block lead-content %}This site provides German grammar practice for English speakers. Lessons are multiple choice.{% endblock lead-content %}
+          {% if not user.is_authenticated %}
+            Be sure to <a href="#" class="text-primary font-weight-bold">Sign Up</a>
+            or <a href="{% url 'login' %}?next={{ request.path }}" class="text-primary font-weight-bold">Sign In</a> 
+            to track your progress and review items using spaced repetition.
+          {% endif %}
+          </p>
+        </div>
+        {% if user.is_authenticated %}
+          <div class="container">
+            <p class="text-muted">You are signed in as <b>{{ user.get_full_name }}</b>.</p>
+          </div>
+          {% endif %}
+      </div>
+      {% endblock lead %}
+
+      {% block content %}
+      <div class="container">
+        <div class="row">
+          <div class="card-deck mb-3">
+
+            {% for card in card_deck %}
+            <div class="card mb-4 box-shadow{% if card.disabled == True %} text-muted{% endif %}">
+              <div class="card-header text-center">
+                <h4 class="my-0 font-weight-normal">{{ card.title }}</h4>
+              </div>
+              <div class="card-body">
+                <p>{% autoescape off %}{{ card.text }}{% endautoescape %}</p>
+              </div>
+              <div class="card-footer bg-transparent border-0">
+                <a id="{{ card.button_id }}" role="button" href="{% url card.url %}" 
+                  class="btn btn-lg btn-block btn-primary{% if card.disabled == True %} disabled{% endif %}">{% autoescape off %}{{ card.button_text }}{% endautoescape %}</a>
+              </div>
+            </div>
+            {% endfor %}
+
+          </div> <!-- /card-deck -->
+        </div> <!-- /row -->
+      </div> <!-- /container -->
+      {% endblock content %}
+
+    </main>
+
+{% include 'footer.html' %}
+
+    {% block scripts %}
+    {% endblock scripts %}
+
+  </body>
+</html>

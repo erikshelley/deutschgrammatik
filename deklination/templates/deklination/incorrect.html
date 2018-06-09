@@ -1,0 +1,16 @@
+                    <h2 class="text-danger">Incorrect!</h2>
+                    {% if user.is_authenticated %}
+                      <p><strong>{{ article }} {{ noun.noun }}</strong> : Do you remember it now?</p>
+                      <form action="{% url 'deklination:gender_quiz' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="noun" value="{{ noun.noun }}" />
+                        <input type="hidden" name="english" value="{{ noun.english }}" />
+                        <button class="btn btn-md btn-primary" type="submit" name="quality" value="0">"Not Really"</button>
+                        <button class="btn btn-md btn-primary" type="submit" name="quality" value="1">"Maybe"</button>
+                        <button class="btn btn-md btn-primary" type="submit" name="quality" value="2">"Definitely"</button>
+                      </form>
+                    {% else %}
+                      <p>The gender is {{ gender }} : <strong>{{ article }} {{ noun.noun}}</strong></p>
+                      <a role="button" href="{% url 'deklination:gender_quiz' %}" class="btn btn-md btn-primary">Next Question &raquo;</a>
+                    {% endif %}
+

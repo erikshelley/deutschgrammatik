@@ -1,0 +1,22 @@
+# compiled files
+*.pyc
+
+# log files
+*.log
+
+# test coverage metrics
+.coverage
+htmlcov/
+
+# information to hide from github
+settings_secret.py
+
+# database for testing (python manage.py dumpdata -o testdb.json)
+testdb.json
+
+# scripts for initializing database vocabulary
+noun_import.py
+
+# virtual environment for required packages
+env/
+
