@@ -20,7 +20,8 @@ noun_import.py
 # virtual environment for required packages
 env/
 
-# server-only file
+# server-only files
 dispatch.fcgi
 .htaccess
+static/
 
