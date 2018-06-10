@@ -1,5 +1,9 @@
-from django.shortcuts import render, render_to_response
-from django.template import RequestContext
+from django.conf                import settings
+from django.contrib.auth        import login, authenticate
+from django.contrib.auth.forms  import UserCreationForm
+from django.shortcuts           import render, redirect, render_to_response
+from django.template            import RequestContext
+from forms                      import SignUpForm
 
 def index(request):
     context = {}
@@ -29,22 +33,45 @@ def index(request):
     context['card_deck'] = [card1, card2, card3]
     return render(request, 'index.html', context)
 
+def signup(request):
+    if request.method == 'POST':
+        #form = UserCreationForm(request.POST)
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('index')
+    else:
+        #form = UserCreationForm()
+        form = SignUpForm()
+    return render(request, 'signup.html', {'form': form, 'page_subtitle': 'Sign Up - '})
+
 def error_400(request):
-    response = render_to_response('400.html', {}, context_instance=RequestContext(request))
+    #response = render_to_response('400.html', {}, context_instance=RequestContext(request))
+    response = render(request, '400.html', {})
     response.status_code = 400
     return response
 
 def error_403(request):
-    response = render_to_response('403.html', {}, context_instance=RequestContext(request))
+    #response = render_to_response('403.html', {}, context_instance=RequestContext(request))
+    response = render(request, '403.html', {})
     response.status_code = 403
     return response
 
 def error_404(request):
-    response = render_to_response('404.html', {}, context_instance=RequestContext(request))
+    #response = render_to_response('404.html', {}, context_instance=RequestContext(request))
+    response = render(request, '404.html', {})
     response.status_code = 404
+    #if settings.DEBUG:
+    #print "In error_404: " + request.path
     return response
 
 def error_500(request):
-    response = render_to_response('500.html', {}, context_instance=RequestContext(request))
+    #response = render_to_response('500.html', {}, context_instance=RequestContext(request))
+    response = render(request, '500.html', {})
     response.status_code = 500
     return response
+

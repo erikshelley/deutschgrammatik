@@ -19,7 +19,8 @@
         </ul>
 
         <div class="dropdown">
-          <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Hello {{ user.get_full_name|default:"Guest" }}</a>
+          <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" 
+            aria-expanded="false">Hello {% if user.get_short_name %}{{ user.get_short_name}}{% else %}{{ user.get_username|default:"Guest" }}{% endif %}</a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
           {% if user.is_authenticated %}
             {% if user.is_staff %}
@@ -27,7 +28,7 @@
             {% endif %}
             <a class="dropdown-item" href="{% url 'logout' %}?next={{ request.path }}">Sign Out</a>
           {% else %}
-            <a class="dropdown-item" href="/">Sign Up</a>
+            <a class="dropdown-item" href="{% url 'signup' %}">Sign Up</a>
             <a class="dropdown-item" href="{% url 'login' %}?next={{ request.path }}">Sign In</a>
           {% endif %}
           </div>

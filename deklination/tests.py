@@ -44,7 +44,7 @@ def check_guest_items(self, resp):
 def check_authorized_items(self, resp):
     assert "Sign Up" not in resp.content
     assert "Sign In" not in resp.content
-    expected_regex = re.compile(r"<nav .+?Hello First Last.+?Sign Out.+?</nav>", re.MULTILINE|re.DOTALL)
+    expected_regex = re.compile(r"<nav .+?Hello First.+?Sign Out.+?</nav>", re.MULTILINE|re.DOTALL)
     unittest.TestCase.assertRegexpMatches(self, resp.content.encode('utf-8'), expected_regex)
 
 
@@ -55,12 +55,14 @@ class TestDeklination(TestCase):
         assert "Identify Declension</h4>" in resp.content
 
     def test_deklination_guest(self):
+        print '\nTest: Deklination Guest'
         resp = self.client.get("/deklination/", follow=True)
         check_universal_items(resp)
         check_guest_items(self, resp)
         self.check_quiz_options(resp)
 
     def test_deklination_authorized(self):
+        print '\nTest: Deklination Authorized'
         create_user(self, False)
         self.client.login(username=self.username, password=self.password)
         resp = self.client.get("/deklination/", follow=True)
@@ -70,6 +72,7 @@ class TestDeklination(TestCase):
 
 class TestGenderQuizEmptyDB(TestCase):
     def test_gender_quiz_empty(self):
+        print '\nTest: Gender Quiz Empty DB'
         resp = self.client.get("/deklination/gender_quiz/", follow=True)
         
 
@@ -121,6 +124,7 @@ class SeleniumClass(StaticLiveServerTestCase):
 
 class TestGenderQuiz(SeleniumClass):
     def test_guest_e2e(self):
+        print '\nTest: Gender Quiz Guest E2E'
         self.navigate_to_quiz()
         for i in range(6):
             self.verify_question_elements()
@@ -134,6 +138,7 @@ class TestGenderQuiz(SeleniumClass):
             self.guest_next_question()
 
     def test_authorized_e2e(self):
+        print '\nTest: Gender Quiz Authorized E2E'
         create_user(self, False)
         self.navigate_to_quiz()
         self.login()
