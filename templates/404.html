@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'header.html' %}
+
+  <body>
+
+{% include 'top_nav.html' %}
+
+    <main role="main">
+
+      {% block lead %}
+      <div class="jumbotron pb-2">
+        <div class="container pt-4">
+          <h1 class="display-4">{% block lead-title %}Page Not Found{% endblock lead-title %}</h1>
+          <p class="lead">{% block lead-content %}Somehow you have requested a page that does not exist.{% endblock lead-content %}
+          </p>
+        </div>
+      </div>
+      {% endblock lead %}
+
+    </main>
+
+{% include 'footer.html' %}
+
+    {% block scripts %}
+    {% endblock scripts %}
+
+  </body>
+</html>
