@@ -13,19 +13,19 @@
       <div class="jumbotron pb-2">
         <div class="container pt-4">
           <h1 class="display-4">{% block lead-title %}Willkommen{% endblock lead-title %}</h1>
-          <p class="lead">{% block lead-content %}This site provides German grammar practice for English speakers. Lessons are multiple choice.{% endblock lead-content %}
-          {% if not user.is_authenticated %}
-            Be sure to <a href="{% url 'signup' %}" class="text-primary font-weight-bold">Sign Up</a>
-            or <a href="{% url 'login' %}?next={{ request.path }}" class="text-primary font-weight-bold">Sign In</a> 
-            to track your progress and review items using spaced repetition.
-          {% endif %}
+          <p class="lead">{% block lead-content %}This site provides German grammar practice for English speakers. Lessons are multiple choice.{% endblock lead-content %}</p>
           </p>
         </div>
-        {% if user.is_authenticated %}
           <div class="container">
-            <p class="text-muted">You are signed in as <b>{{ user.get_full_name|default:user.get_username }}</b>.</p>
-          </div>
+          {% if user.is_authenticated %}
+            <p class="text-muted">You are signed in as <b>{{ user.get_full_name|default:user.get_username }}</b>.
+            {% if 'progress' not in request.path %}<a href="{% url 'progress:index' %}">Track Your Progress</a>{% endif %}</p>
+          {% else %}
+            <p class="text-muted">Be sure to <a href="{% url 'signup' %}" class="text-primary font-weight-bold">Sign Up</a>
+            or <a href="{% url 'login' %}?next={{ request.path }}" class="text-primary font-weight-bold">Sign In</a> 
+            to track your progress and review items using spaced repetition.</p>
           {% endif %}
+          </div>
       </div>
       {% endblock lead %}
 
@@ -40,7 +40,10 @@
                 <h4 class="my-0 font-weight-normal">{{ card.title }}</h4>
               </div>
               <div class="card-body">
-                <p>{% autoescape off %}{{ card.text }}{% endautoescape %}</p>
+                <p>
+                {% autoescape off %}{{ card.text }}{% endautoescape %}
+                {% if card.chart %}{% load jchart %}{% render_chart card.chart card.chart_args %}{% endif %}
+                </p>
               </div>
               <div class="card-footer bg-transparent border-0">
                 <a id="{{ card.button_id }}" role="button" href="{% url card.url %}" 
@@ -56,8 +59,7 @@
 
     </main>
 
-{% include 'footer.html' %}
-
+    {% include 'footer.html' %}
     {% block scripts %}
     {% endblock scripts %}
 

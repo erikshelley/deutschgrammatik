@@ -1,0 +1,16 @@
+    {% extends "index.html" %}
+    {% load staticfiles %}
+
+    {% block lead-title %}Items Reviewed{% endblock lead-title %}
+    {% block lead-content %}Here is your review history and projections.{% endblock lead-content %}
+
+      {% block content %}
+      <div class="container">
+
+        <!--{ bar_chart.as_html }}-->
+        {% load jchart %}
+        {% render_chart 'progress:review_chart' request.user %}
+
+      </div> <!-- /container -->
+      {% endblock content %}
+

@@ -5,7 +5,7 @@ from django.conf                        import settings
 from django.contrib.auth.models         import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core.cache                  import cache
-from django.test                        import TestCase, Client, tag
+from django.test                        import TestCase, Client
 from django.test.client                 import RequestFactory
 
 import copy, datetime, math, os, pytz, re, time, unittest, unicodecsv as csv
@@ -48,7 +48,7 @@ class TestAdminPanel_UnAuthorized(TestCase):
             '/admin/deklination/',
             '/admin/deklination/noun/',
             '/admin/deklination/genderquizscore/',
-            '/admin/deklination/genderquizscore/132/',
+            '/admin/deklination/genderquizscore/8/',
             '/admin/logout/'
         ]
         for page in admin_pages:
@@ -77,7 +77,7 @@ class TestAdminPanel_Authorized(TestCase):
             '/admin/deklination/',
             '/admin/deklination/noun/',
             '/admin/deklination/genderquizscore/',
-            '/admin/deklination/genderquizscore/132/',
+            '/admin/deklination/genderquizscore/8/',
             '/admin/logout/'
         ]
         for page in admin_pages:
@@ -134,7 +134,6 @@ class TestErrorPages(TestCase):
 class SeleniumClass(StaticLiveServerTestCase):
     fixtures = ['testdb.json']
     serialized_rollback = True
-    #available_apps = ['deklination']
 
     @contextmanager
     def wait_for_page_load(cls, timeout=30):
@@ -179,8 +178,8 @@ class TestRegistration(SeleniumClass):
         self.signout()
         self.signup('username1', '', 'lastname', 'email@example.com', 'testPass!', 'testPass!')
         self.validate_signup_error('id_username_error', 'A user with that username already exists.', 'username1', '', 'lastname', 'email@example.com')
-        self.signup('username2', 'firstname', '', 'email@example.com', 'password', 'password')
-        self.validate_signup_error('id_password2_error', 'This password is too common.', 'username2', 'firstname', '', 'email@example.com')
+        #self.signup('username2', 'firstname', '', 'email@example.com', 'password', 'password')
+        #self.validate_signup_error('id_password2_error', 'This password is too common.', 'username2', 'firstname', '', 'email@example.com')
         self.signup('username2', 'firstname', '', 'email@example.com', 'testPass!', 'wordpass')
         self.validate_signup_error('id_password2_error', "The two password fields didn't match.", 'username2', 'firstname', '', 'email@example.com')
         self.signup('username1', 'firstname', 'lastname', '', 'testPass!', 'wordpass')
@@ -218,5 +217,4 @@ class TestRegistration(SeleniumClass):
         assert firstname in self.selenium.find_element_by_xpath('//input[@id="id_first_name"]').get_attribute('value')
         assert lastname in self.selenium.find_element_by_xpath('//input[@id="id_last_name"]').get_attribute('value')
         assert email in self.selenium.find_element_by_xpath('//input[@id="id_email"]').get_attribute('value')
-
 

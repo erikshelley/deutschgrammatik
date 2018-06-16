@@ -3,31 +3,40 @@
 {% block lead %}{% endblock lead %}
 {% block content %}
 
-<div class="container">
+        <div class="container">
+          <form class="form-signin pt-5 mt-5" method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <h1 class="h3 mb-3 font-weight-normal text-center">Please Sign In</h1>
 
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+            {% if form.errors %}
+              <div id="form_error" class="text-danger">Incorrect username and/or password.</div>
+            {% endif %}
+            {% if next %}
+              {% if user.is_authenticated %}
+              <p>Your account doesn't have access to this page. To proceed,
+              please login with an account that has access.</p>
+              {% endif %}
+            {% endif %}
 
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-    {% endif %}
-{% endif %}
+            {% for field in form %}
+              <label for="{{ field.id_for_label }}" class="sr-only">{{ field.label }}</label>
+              <input 
+                type="{% if 'password' in field.html_name %}password{% else %}text{% endif %}" 
+                name="{{ field.html_name }}" 
+                id="{{ field.id_for_label }}" 
+                maxlength="30" 
+                class="form-control{% if field.html_name == 'username' %} input-select{% endif %}" 
+                placeholder="{{ field.label }}{% if not field.field.required %} (Optional){% endif %}" 
+                {% if 'password' not in field.html_name %}
+                  {% if field.value %} value="{{ field.value }}" {% endif %}
+                {% endif %}
+                {% if field.field.required %} required {% endif %} 
+                {% if field.html_name == 'username' %} autofocus {% endif %} />
+                {% if field.errors %}<div id="{{ field.id_for_label }}_error" class="text-danger">{% for error in field.errors %} {{ error }}{% endfor %}</div>{% endif %}
+            {% endfor %}
+            <button id="signin" class="btn btn-lg btn-primary btn-block mt-2" type="submit">Sign In</button>
+            <input type="hidden" name="next" value="{{ next }}" />
+          </form>
+        </div>
+      {% endblock content %}
 
-
-<form class="form-signin pt-5 mt-5" method="post" action="{% url 'login' %}">
-  {% csrf_token %}
-  <h1 class="h3 mb-3 font-weight-normal text-center">Please Sign In</h1>
-  <label for="id_username" class="sr-only">Username</label>
-  <input type="text" name="username" id="id_username" maxlength="254" class="form-control" placeholder="Username" required autofocus />
-  <label for="id_password" class="sr-only">Password</label>
-  <input type="password" name="password" id="id_password" class="form-control" placeholder="Password" required />
-  <button id="signin" class="btn btn-lg btn-primary btn-block mt-2" type="submit" value="login">Sign in</button>
-  <input type="hidden" name="next" value="{{ next }}" />
-</form>
-
-</div>
-
-{% endblock %}

@@ -1,59 +1,71 @@
     {% extends "deklination/index.html" %}
+    {% load staticfiles %}
 
     {% block lead-title %}Gender Quiz{% endblock lead-title %}
-    {% block lead-content %}Choose the correct gender below or return to the <a class="text-primary font-weight-bold" href="{% url 'deklination:index' %}">Deklination Home Page</a>.{% endblock lead-content %}
+    {% block lead-content %}Choose the correct gender below.{% endblock lead-content %}
 
       {% block content %}
       <div class="container">
 
         {% if noun %}
           <div class="row text-center">
-
-            <div class="col-sm py-2">
-              <div class="list-group" id="list-tab" role="tablist">
-                <a class="list-group-item list-group-item-action active" id="list-title-list" data-toggle="list" href="#list-title" role="tab" aria-controls="title" disabled>
+            <div class="col-sm">
+			  <div class="list-group" id="list-tab">
+                <a class="list-group-item list-group-item-action bg-info text-light font-weight-bold" data-toggle="collapse" href="#list-title" id="list-title-list" aria-controls="title" disabled>
                     Identify Gender{% if review %} ({{ review }}){% endif %}</a>
-                <a class="list-group-item list-group-item-action" id="list-der-list" data-toggle="list" href="#list-der" role="tab" aria-controls="der">Der {{ noun.noun }}</a>
-                <a class="list-group-item list-group-item-action" id="list-das-list" data-toggle="list" href="#list-das" role="tab" aria-controls="das">Das {{ noun.noun }}</a>
-                <a class="list-group-item list-group-item-action" id="list-die-list" data-toggle="list" href="#list-die" role="tab" aria-controls="die">Die {{ noun.noun }}</a>
-              </div>
-            </div>
+			    <a class="list-group-item list-group-item-action" data-toggle="collapse" id="der-tab" href=".der" aria-expanded="false" aria-controls="dict der">Der {{ noun.noun }}</a>
+			    <a class="list-group-item list-group-item-action" data-toggle="collapse" id="das-tab" href=".das" aria-expanded="false" aria-controls="dict das">Das {{ noun.noun }}</a>
+			    <a class="list-group-item list-group-item-action" data-toggle="collapse" id="die-tab" href=".die" aria-expanded="false" aria-controls="dict die">Die {{ noun.noun }}</a>
+			  </div>
+		    </div>
+		  </div>
 
-            <div class="col-sm py-2">
-              <div class="tab-content text-center" id="nav-tabContent">
-
-                <div class="tab-pane fade show active" id="list-title" role="tabpanel" aria-labelledby="list-title-list">
-                  <h2>Definition</h2>
-                  <p>{% for definition in noun.english_list %}{{ definition|title }}<br />{% endfor %}</p>
-                  <p class="text-muted">Ranked #{{ noun.rank }} in popularity out of {{ count }} nouns.</p>
+		  <div class="collapse multi-collapse der" id="der">
+		    <div class="row text-center">
+		      <div class="col-sm">
+                <div class="card border-0">
+			      <div class="card-body">
+                    {% if noun.gender == 'M' %}{% include 'deklination/correct.html' %}{% else %}{% include 'deklination/incorrect.html' %}{% endif %}
+				  </div>
                 </div>
-
-                <div class="tab-pane fade" id="list-der" role="tabpanel" aria-labelledby="list-der-list">
-                  {% if noun.gender == 'M' %}
-                    {% include 'deklination/correct.html' %}
-                  {% else %}
-                    {% include 'deklination/incorrect.html' %}
-                  {% endif %}
-                </div>
-
-                <div class="tab-pane fade" id="list-das" role="tabpanel" aria-labelledby="list-das-list">
-                  {% if noun.gender == 'N' %}
-                    {% include 'deklination/correct.html' %}
-                  {% else %}
-                    {% include 'deklination/incorrect.html' %}
-                  {% endif %}
-                </div>
-
-                <div class="tab-pane fade" id="list-die" role="tabpanel" aria-labelledby="list-die-list">
-                  {% if noun.gender == 'F' %}
-                    {% include 'deklination/correct.html' %}
-                  {% else %}
-                    {% include 'deklination/incorrect.html' %}
-                  {% endif %}
-                </div>
-              </div>
-            </div>
+			  </div>
+			</div>
           </div>
+		  <div class="collapse multi-collapse das" id="das">
+		    <div class="row text-center">
+		      <div class="col-sm">
+                <div class="card border-0">
+			      <div class="card-body" id="das-card">
+                    {% if noun.gender == 'N' %}{% include 'deklination/correct.html' %}{% else %}{% include 'deklination/incorrect.html' %}{% endif %}
+				  </div>
+                </div>
+			  </div>
+			</div>
+          </div>
+		  <div class="collapse multi-collapse die" id="die">
+		    <div class="row text-center">
+		      <div class="col-sm">
+                <div class="card border-0">
+			      <div class="card-body" id="die-card">
+                    {% if noun.gender == 'F' %}{% include 'deklination/correct.html' %}{% else %}{% include 'deklination/incorrect.html' %}{% endif %}
+				  </div>
+                </div>
+			  </div>
+			</div>
+          </div>
+
+		  <div class="collapse multi-collapse mt-2 der das die dict" id="dict">
+		    <div class="row">
+		      <div class="col-sm">
+			    <div id="definition-card" class="card card-body pt-0 border-0 text-center">
+                  <a id="definition-toggle" href="#">Show Definition</a>
+                  <div class="embed-responsive embed-responsive-1by1" id="definition-embed" style="display: none;">
+                    <iframe class="embed-responsive-item" id="definition-frame" src=""></iframe>
+                  </div>
+				</div>
+			  </div>
+			</div>
+		  </div>
 
         {% else %}
           <p>There are no nouns to review.</p>
@@ -65,13 +77,25 @@
     {% block scripts %}
     <script>
 
-    //$('#list-der-list').focus();
-
     $( document ).ready(function() {
       $('#list-title-list').css('pointer-events','none');
     });
 
-    $('#list-tab a').on('click', function (e) {
+    $('#definition-toggle').on('click', function(e) {
+      $('#definition-toggle').hide();
+      $('#definition-card').removeClass('border-0');
+      $('#definition-card').addClass('bg-light');
+      $('#definition-embed').attr('style', "background:url('{% static 'images/loading_trans.gif' %}') top center no-repeat");
+      $('#definition-frame').attr('src', 'https://m.dict.cc/deen/?s={{ dict }}');
+      reposition_footer();
+    });
+
+	$('#dict').on('shown.bs.collapse', function () {
+	  $('[data-toggle=collapse]').css('pointer-events','none');
+      reposition_footer();
+	});
+
+    $('#list-tub a').on('click', function (e) {
       e.preventDefault();
       $(this).tab('show');
       $('#list-tab *').removeAttr('href');
@@ -84,7 +108,6 @@
       }
       $('#list-title-list').addClass('text-light');
       $('#list-title-list').addClass('bg-primary');
-      //footerTop = ($(window).scrollTop()+$(window).height()-footerHeight)+"px";
     })
 
     </script>

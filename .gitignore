@@ -11,16 +11,20 @@ htmlcov/
 # information to hide from github
 settings_secret.py
 
-# database for testing (python manage.py dumpdata -o testdb.json)
+# database for testing (python manage.py dumpdata --natural-foreign --indent 4 -e sessions -e admin -e contenttypes -e auth.Permission > testdb.json)
 testdb.json
 
 # scripts for initializing database vocabulary
 noun_import.py
+nouns.csv
 
 # virtual environment for required packages
 env/
 
 # server-only files
+# > source env/bin/activate
+# > python manage.py collectstatic
+# > deactivate
 dispatch.fcgi
 .htaccess
 static/

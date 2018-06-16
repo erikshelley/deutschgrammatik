@@ -11,7 +11,7 @@ def index(request):
         'disabled': False, 'title': 'Deklination', 
         'text': 'Practice <strong>declension</strong>. Identify the correct case and apply the correct endings to nouns, pronouns, articles, and adjectives.', 
         'button_id': 'begin_deklination',
-        'button_text': 'Begin Practicing &raquo;',
+        'button_text': 'Practice &raquo;',
         'url': 'deklination:index'
         }
     card2 = {
@@ -50,27 +50,21 @@ def signup(request):
     return render(request, 'signup.html', {'form': form, 'page_subtitle': 'Sign Up - '})
 
 def error_400(request):
-    #response = render_to_response('400.html', {}, context_instance=RequestContext(request))
     response = render(request, '400.html', {})
     response.status_code = 400
     return response
 
 def error_403(request):
-    #response = render_to_response('403.html', {}, context_instance=RequestContext(request))
     response = render(request, '403.html', {})
     response.status_code = 403
     return response
 
 def error_404(request):
-    #response = render_to_response('404.html', {}, context_instance=RequestContext(request))
     response = render(request, '404.html', {})
     response.status_code = 404
-    #if settings.DEBUG:
-    #print "In error_404: " + request.path
     return response
 
 def error_500(request):
-    #response = render_to_response('500.html', {}, context_instance=RequestContext(request))
     response = render(request, '500.html', {})
     response.status_code = 500
     return response

@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-from django.shortcuts import render
+from __future__                 import unicode_literals
+from datetime                   import timedelta
+from operator                   import itemgetter
 from django.contrib.auth.models import User
-from .models import Noun, GenderQuizScore
-import random, math
-from datetime import timedelta
-from django.utils import timezone
-from operator import itemgetter
+from django.shortcuts           import render
+from django.utils               import timezone
+
+import random, math, datetime, pytz
+
+from .models                    import Noun, GenderQuizScore
+from progress.models            import Progress
+from progress.views             import ProgressTracker
 
 def index(request):
     context = {}
@@ -16,9 +20,8 @@ def index(request):
         'title': 'Identify Gender',  
         'text': 'The first step in correct declination is to know the gender of the noun in question. If you need practice on noun genders then start here.',
         'button_id': 'begin_gender',
-        'button_text': 'Begin Practicing &raquo;',
+        'button_text': 'Practice &raquo;',
         'url': 'deklination:gender_quiz'
-        #'url': '/deklination/gender_quiz/'
         }
     card2 = {
         'disabled': True,  
@@ -41,16 +44,39 @@ def index(request):
     
 
 def gender_quiz_record_response(request):
+    new_delta = 0
+    short_delta = 0
+    long_delta = 0
     noun_key = request.POST['noun'].replace(" | ", "|")
     noun = Noun.objects.get(noun = noun_key, english = request.POST['english'])
     gender_srs, created = GenderQuizScore.objects.get_or_create(
         noun        = noun,
         user        = request.user,
-        defaults    = {'easiness_factor': 2.5, 'consecutive_correct': 0, 'interval': 0})
+        defaults    = {'review_count': 0, 'easiness_factor': 2.5, 'consecutive_correct': 0, 'interval': 0})
+
+    # Prevent re-submitting quality score
+    if not created:
+        current_time = timezone.now()
+        if gender_srs.interval == 0:
+            if gender_srs.review_date + timedelta(minutes = 10) > current_time:
+                return
+        else:
+            if gender_srs.review_date + timedelta(days = gender_srs.interval) > current_time:
+                return
+
     quality = int(request.POST['quality'])
+    gender_srs.review_count += 1
+    if created:
+        gender_srs.status = 'N'
+        new_delta = 1
     if quality < 3:
         gender_srs.consecutive_correct = 0
         gender_srs.interval = 0
+        gender_srs.reviews_missed += 1
+        if gender_srs.status == 'L':
+            gender_srs.status = 'S'
+            short_delta = 1
+            long_delta = -1
     else:
         if gender_srs.interval == 0:
             gender_srs.interval = 1
@@ -59,18 +85,21 @@ def gender_quiz_record_response(request):
         else:
             gender_srs.interval = math.ceil(gender_srs.interval * gender_srs.easiness_factor)
         gender_srs.consecutive_correct = gender_srs.consecutive_correct + 1
+    if gender_srs.interval >= 14:
+        if gender_srs.status == 'N':
+            gender_srs.status = 'S'
+            new_delta = -1
+            short_delta = 1
+    if gender_srs.interval >= 21:
+        gender_srs.status = 'L'
+        short_delta = -1
+        long_delta = 1
     gender_srs.easiness_factor = gender_srs.easiness_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
     if gender_srs.easiness_factor < 1.3:
         gender_srs.easiness_factor = 1.3
-    quality_count = [0, 0, 0, 0, 0, 0]
-    quality_count[quality] = 1
-    gender_srs.quality_0 += quality_count[0]
-    gender_srs.quality_1 += quality_count[1]
-    gender_srs.quality_2 += quality_count[2]
-    gender_srs.quality_3 += quality_count[3]
-    gender_srs.quality_4 += quality_count[4]
-    gender_srs.quality_5 += quality_count[5]
     gender_srs.save()
+    progress = ProgressTracker()
+    progress.update_progress(request.user, 'DG', quality, new_delta, short_delta, long_delta)
 
 
 def gender_quiz_select_question(request, context, nouns):
@@ -91,7 +120,7 @@ def gender_quiz_select_question(request, context, nouns):
             for review in reviews:
                 overdue_amount = current_time - (review.review_date + timedelta(days = review.interval))
                 if review.interval == 0:
-                    if review.review_date + timedelta(minutes = 5) < current_time:
+                    if review.review_date + timedelta(minutes = 10) < current_time:
                         unlearned_nouns.append((review.review_date, review.noun))
                 elif overdue_amount.total_seconds() > 0:
                     overdue_nouns.append((overdue_amount.total_seconds() / (review.interval * 24 * 60 * 60), review.noun))
@@ -124,6 +153,7 @@ def gender_quiz(request):
 
     context['count'] = nouns.count()
     if len(nouns) > 0:
+        context['dict'] = context['noun'].noun.split('|')[0]
         if context['noun'].gender == 'M':
             context['article'] = "Der"
             context['gender'] = "masculine"

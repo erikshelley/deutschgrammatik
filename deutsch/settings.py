@@ -28,7 +28,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'deklination.apps.DeklinationConfig',
+    'progress.apps.ProgressConfig',
     'coverage',
+    'jchart',
 ]
 
 MIDDLEWARE_CLASSES = [

@@ -1,0 +1,16 @@
+    {% extends "index.html" %}
+    {% load staticfiles %}
+
+    {% block lead-title %}Items Learned{% endblock lead-title %}
+    {% block lead-content %}Here is the history of what you have learned.{% endblock lead-content %}
+
+      {% block content %}
+      <div class="container">
+
+        <!--{ bar_chart.as_html }}-->
+        {% load jchart %}
+        {% render_chart 'progress:learned_chart' request.user %}
+
+      </div> <!-- /container -->
+      {% endblock content %}
+

@@ -10,8 +10,13 @@
           <li class="nav-item{% url 'index' as home_url %}{% if request.path == home_url %} active{% endif %}">
             <a class="nav-link" href="{% url 'index' %}">Home{% if request.path == '/' %} <span class="sr-only">(current)</span>{% endif %}</a>
           </li>
+          {% if user.is_authenticated %}
+          <li class="nav-item{% url 'progress:index' as pro_url %}{% if request.path == pro_url %} active{% endif %}">
+            <a class="nav-link" href="{% url 'progress:index' %}">Progress{% if request.path == pro_url %} <span class="sr-only">(current)</span>{% endif %}</a>
+          </li>
+          {% endif %}
           <li class="nav-item{% url 'deklination:index' as dek_url %}{% if request.path == dek_url %} active{% endif %}">
-            <a class="nav-link" href="{% url 'deklination:index' %}">Deklination{% if request.path == '/deklination/' %} <span class="sr-only">(current)</span>{% endif %}</a>
+            <a class="nav-link" href="{% url 'deklination:index' %}">Deklination{% if request.path == dek_url %} <span class="sr-only">(current)</span>{% endif %}</a>
           </li>
           <li class="nav-item"><a class="nav-link disabled" href="{% url 'index' %}">Konjugation</a></li>
           <li class="nav-item"><a class="nav-link disabled" href="{% url 'index' %}">Wortstellung</a></li>
