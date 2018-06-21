@@ -10,7 +10,7 @@
         {% if noun %}
           <div class="row text-center">
             <div class="col-sm">
-			  <div class="list-group" id="list-tab">
+			  <div class="list-group border" id="list-tab">
                 <a class="list-group-item list-group-item-action bg-info text-light font-weight-bold" data-toggle="collapse" href="#list-title" id="list-title-list" aria-controls="title" disabled>
                     Identify Gender{% if review %} ({{ review }}){% endif %}</a>
 			    <div class="list-group-item list-group-item-action text-info font-weight-bold bg-light" style="pointer-events: none;" disabled>"{{ noun.english }}"</div>
@@ -59,7 +59,7 @@
 		    <div class="row">
 		      <div class="col-sm">
 			    <div id="definition-card" class="card card-body pt-0 border-0 text-center">
-                  <a id="definition-toggle" href="#">Show Dictionary</a>
+                  <a id="definition-toggle" href="#">Show Dictionary Entry</a>
                   <div class="embed-responsive embed-responsive-1by1" id="definition-embed" style="display: none;">
                     <iframe class="embed-responsive-item" id="definition-frame" src=""></iframe>
                   </div>
@@ -96,20 +96,33 @@
       reposition_footer();
 	});
 
-    $('#list-tub a').on('click', function (e) {
+    $('#list-tab a').on('click', function (e) {
+      $('#der-tab').addClass('d-none');
+      $('#das-tab').addClass('d-none');
+      $('#die-tab').addClass('d-none');
+      $(this).removeClass('d-none');
+      /*$(this).css('user-select', 'none');
+      $(this).css('-o-user-select', 'none');
+      $(this).css('-moz-user-select', 'none');
+      $(this).css('-khtml-user-select', 'none');
+      $(this).css('-webkit-user-select', 'none');*/
+    });
+
+    /*$('#list-tub a').on('click', function (e) {
       e.preventDefault();
       $(this).tab('show');
-      $('#list-tab *').removeAttr('href');
-      $('#list-tab *').addClass('disabled');
       if ( $(this).hasClass('active') ) {
         $(this).addClass('text-primary');
         $(this).addClass('font-weight-bold');
         $(this).addClass('bg-light');
         $(this).removeClass('active');
+        $(this).removeClass('d-none');
       }
+      $('#list-tab *').removeAttr('href');
+      $('#list-tab *').addClass('disabled');
       $('#list-title-list').addClass('text-light');
       $('#list-title-list').addClass('bg-primary');
-    })
+    });*/
 
     </script>
     {% endblock scripts %}

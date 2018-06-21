@@ -22,9 +22,9 @@
             {% if next_review %}{{ next_review }}{% endif %}
             {% if 'progress' not in request.path %}<a href="{% url 'progress:index' %}">Review your progress</a>{% endif %}</p>
           {% else %}
-            <p class="text-muted">Be sure to <a href="{% url 'signup' %}" class="text-primary font-weight-bold">Sign Up</a>
+            <p class="text-muted"><a href="{% url 'signup' %}" class="text-primary font-weight-bold">Sign Up</a>
             or <a href="{% url 'login' %}?next={{ request.path }}" class="text-primary font-weight-bold">Sign In</a> 
-            to track your progress and review items using spaced repetition.</p>
+            to track your progress and use spaced repetition.</p>
           {% endif %}
           </div>
       </div>

@@ -108,7 +108,7 @@ def gender_quiz_select_question(request, context, nouns):
                 if overdue_amount.total_seconds() > 0:
                     overdue_reviews.append((overdue_amount.total_seconds() / (review.interval * 24 * 60 * 60), review))
             if len(overdue_reviews) > 0:
-                overdue_reviews.sort(ket=itemgetter(0), reverse=True)
+                overdue_reviews.sort(key=itemgetter(0), reverse=True)
                 selected_review = overdue_reviews[0][1]
 
         # Look for new rule or noun to study
@@ -120,18 +120,22 @@ def gender_quiz_select_question(request, context, nouns):
             nouns_with_rules = list(NounRule.objects.filter(is_match = True).values_list('noun', flat=True))
             unreviewed_noun = Noun.objects.exclude(id__in = reviewed_nouns).exclude(id__in = nouns_with_rules).order_by('-frequency').first()
 
-            context['review'] = 'New'
             if unreviewed_rule.frequency >= unreviewed_noun.frequency:
+                context['review'] = 'New Rule'
                 context['rule'] = unreviewed_rule
+                noun_index = 0
             else:
+                context['review'] = 'New Noun'
                 context['noun'] = unreviewed_noun
         else:
-            context['review'] = 'Review'
             if selected_review.rule is None:
+                context['review'] = 'Noun Review'
                 context['noun'] = selected_review.noun
             else:
-                reviewed_nouns = list(GenderReviewScore.objects.filter(user = request.user).values_list('noun', flat=True))
+                #reviewed_nouns = list(GenderReviewScore.objects.filter(user = request.user).values_list('noun', flat=True))
+                context['review'] = 'Rule Review'
                 context['rule'] = selected_review.rule
+                noun_index = selected_review.review_count
 
         if 'rule' in context:
             """
@@ -146,7 +150,9 @@ def gender_quiz_select_question(request, context, nouns):
             #else:
             #    context['noun'] = unreviewed_noun
             nouns_matching_rule = NounRule.objects.filter(rule = context['rule'], is_match = True).select_related('noun')
-            context['noun'] = random.choice(nouns_matching_rule).noun
+            #context['noun'] = random.choice(nouns_matching_rule).noun
+            noun_index = noun_index % len(nouns_matching_rule)
+            context['noun'] = nouns_matching_rule[noun_index].noun
 
             matches = NounRule.objects.filter(noun = context['noun'], is_match = True).exclude(rule = context['rule']).select_related('rule')
             exceptions = NounRule.objects.filter(noun = context['noun'], is_match = False).exclude(rule = context['rule']).select_related('rule')

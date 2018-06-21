@@ -96,14 +96,20 @@ class ProgressTracker:
             for review in reviews:
                 # Positive = due in future
                 # Negative = due in past
-                time_due = review.review_date + timedelta(days = review.interval)
+                if review.interval == 0:
+                    time_due = timezone.localtime(review.review_date) + timedelta(minutes = 10)
+                else:
+                    time_due = timezone.localtime(review.review_date) + timedelta(days = review.interval)
                 if time_due < local_time:
                     overdue += 1
                 else:
                     if (first_review == True) or (time_due < min_time_due):
                         first_review = False
                         min_time_due = time_due
-                        next_review_due = review.review_date + timedelta(days = review.interval)
+                        if review.interval == 0:
+                            next_review_due = review.review_date + timedelta(minutes = 10)
+                        else:
+                            next_review_due = review.review_date + timedelta(days = review.interval)
             if overdue > 0:
                 if overdue > 1:
                     return "You have " + str(overdue) + " items due for review. "

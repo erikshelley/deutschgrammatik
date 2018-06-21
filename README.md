@@ -1,5 +1,6 @@
 # Deutsch Grammatik
 A website for practicing German grammar using spaced repetition.
+[Try it out](http://www.erikshelley.com/deutschgrammatik/).
 
 [![Coverage](coverage.svg)](http://codecov.io/github/nedbat/coveragepy?branch=master)
 
@@ -20,6 +21,8 @@ card for a given rule each time it is seen while keeping the content applicable 
 
 ## Features
 - [x] Spaced Repetition for Rules and Exceptions
+- [x] Progress Tracking For Signed In Users (Items Reviewed, Items Learned, Reviews Due)
+- [x] Responsive Design (Mobile Friendly)
 - [x] 5,000 Most Commonly Used German Nouns
 - [x] 44 Gender Rules Covering ~60% of the 5,000 Nouns
 - [ ] Sample Sentences for Identifying Cases and Declension

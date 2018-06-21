@@ -121,11 +121,17 @@ class TestGenderQuiz(SeleniumClass):
 
         # correct answer options
         for i in range(3):
+            #print "Correct answer " + str(i)
+            #print "Verify question elements"
             self.verify_question_elements()
+            #print "Select correct answer"
             self.select_correct_answer()
+            #print "Verify authorized correct answer elements"
             self.verify_authorized_correct_answer_elements()
             #print self.noun.noun
+            #print "Authorized next question"
             self.authorized_next_question(i+3)                  # quality
+            #print "Verification"
             self.genderreviewscore_verification(i+3, 0, 0, 2.5)   # quality, interval, consecutive_correct, easiness_factor
 
         # interval from 1 to 2, review overdue learned item
@@ -159,8 +165,16 @@ class TestGenderQuiz(SeleniumClass):
             self.is_rule = True
 
     def get_noun(self):
-        noun_text = self.selenium.find_element_by_xpath('//a[@id="der-tab"]').text.replace("Der ","").replace(" | ","|")
-        self.noun = Noun.objects.get(noun = noun_text)
+        noun_text = self.selenium.find_element_by_xpath('//a[@id="der-tab"]').get_attribute('innerHTML').replace("Der ","")
+        gender_text = self.selenium.find_element_by_xpath('//div[h2[@class="text-success"]]/ul/li/strong').get_attribute('innerHTML').replace(" " + noun_text,"")
+        if gender_text == 'Der':
+            gender = 'M'
+        elif gender_text == 'Das':
+            gender = 'N'
+        else:
+            gender = 'F'
+        #print "Looking for " + noun_text + ":" + gender_text
+        self.noun = Noun.objects.get(noun = noun_text, gender = gender)
         self.get_rule()
         
     def get_article(self):
@@ -190,10 +204,10 @@ class TestGenderQuiz(SeleniumClass):
         	self.selenium.find_element_by_xpath('//a[@id="begin_gender"]').click()
         
     def verify_question_elements(self):
-        assert "Identify Gender" in self.selenium.find_element_by_xpath('//a[@id="list-title-list"]').text
-        assert "Der " in self.selenium.find_element_by_xpath('//a[@id="der-tab"]').text
-        assert "Das " in self.selenium.find_element_by_xpath('//a[@id="das-tab"]').text
-        assert "Die " in self.selenium.find_element_by_xpath('//a[@id="die-tab"]').text
+        assert "Identify Gender" in self.selenium.find_element_by_xpath('//a[@id="list-title-list"]').get_attribute('innerHTML')
+        assert "Der " in self.selenium.find_element_by_xpath('//a[@id="der-tab"]').get_attribute('innerHTML')
+        assert "Das " in self.selenium.find_element_by_xpath('//a[@id="das-tab"]').get_attribute('innerHTML')
+        assert "Die " in self.selenium.find_element_by_xpath('//a[@id="die-tab"]').get_attribute('innerHTML')
         self.get_noun()
 
     def select_correct_answer(self):
@@ -207,40 +221,40 @@ class TestGenderQuiz(SeleniumClass):
     def verify_guest_correct_answer_elements(self):
         base_xpath = '//div[@id="' + self.get_article() + '"]'
         assert "show" in self.selenium.find_element_by_xpath(base_xpath).get_attribute('class')
-        assert "Correct!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').text
-        assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').text
-        assert "Next Question" in self.selenium.find_element_by_xpath(base_xpath + '//a[@role="button"]').text
+        assert "Correct!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').get_attribute('innerHTML')
+        assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//li').get_attribute('innerHTML')
+        assert "Next Question" in self.selenium.find_element_by_xpath(base_xpath + '//a[@role="button"]').get_attribute('innerHTML')
 
     def verify_guest_incorrect_answer_elements(self):
         base_xpath = '//div[@id="' + self.get_incorrect_article() + '"]'
         assert "show" in self.selenium.find_element_by_xpath(base_xpath).get_attribute('class')
-        assert "Incorrect!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').text
-        assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').text
-        assert "Next Question" in self.selenium.find_element_by_xpath(base_xpath + '//a[@role="button"]').text
+        assert "Incorrect!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').get_attribute('innerHTML')
+        assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//li').get_attribute('innerHTML')
+        assert "Next Question" in self.selenium.find_element_by_xpath(base_xpath + '//a[@role="button"]').get_attribute('innerHTML')
 
     def verify_authorized_correct_answer_elements(self):
         base_xpath = '//div[@id="' + self.get_article() + '"]'
         assert "show" in self.selenium.find_element_by_xpath(base_xpath).get_attribute('class')
-        assert "Correct!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').text
-        #assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').text
-        assert "How hard was that?" in self.selenium.find_element_by_xpath(base_xpath + '//p').text
+        assert "Correct!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').get_attribute('innerHTML')
+        #assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').get_attribute('innerHTML')
+        assert "How hard was that?" in self.selenium.find_element_by_xpath(base_xpath + '//p').get_attribute('innerHTML')
         assert self.noun.noun in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="noun"]').get_attribute('value')
         assert self.noun.english in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="english"]').get_attribute('value')
-        assert "Difficult" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="3"]').text
-        assert "Hesitated" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="4"]').text
-        assert "No Problem" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="5"]').text
+        assert "Difficult" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="3"]').get_attribute('innerHTML')
+        assert "Hesitated" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="4"]').get_attribute('innerHTML')
+        assert "No Problem" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="5"]').get_attribute('innerHTML')
 
     def verify_authorized_incorrect_answer_elements(self):
         base_xpath = '//div[@id="' + self.get_incorrect_article() + '"]'
         assert "show" in self.selenium.find_element_by_xpath(base_xpath).get_attribute('class')
-        assert "Incorrect!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').text
-        #assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').text
-        assert "Do you know it now?" in self.selenium.find_element_by_xpath(base_xpath + '//p').text
+        assert "Incorrect!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').get_attribute('innerHTML')
+        #assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').get_attribute('innerHTML')
+        assert "Do you know this now?" in self.selenium.find_element_by_xpath(base_xpath + '//p').get_attribute('innerHTML')
         assert self.noun.noun in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="noun"]').get_attribute('value')
         assert self.noun.english in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="english"]').get_attribute('value')
-        assert "Not Really" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="0"]').text
-        assert "Maybe" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="1"]').text
-        assert "Definitely" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="2"]').text
+        assert "Not Really" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="0"]').get_attribute('innerHTML')
+        assert "Maybe" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="1"]').get_attribute('innerHTML')
+        assert "Definitely" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="2"]').get_attribute('innerHTML')
 
     def guest_next_question(self):
         with self.wait_for_page_load(timeout=10):
@@ -295,31 +309,33 @@ class TestGenderQuiz(SeleniumClass):
                     review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(days=self.genderreviewscore.interval) - datetime.timedelta(minutes=1))
             else:
                 GenderReviewScore.objects.filter(rule__short_name = rule.short_name, user__username = self.username).update(
-                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(minutes=6))
+                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(minutes=11))
         else:
             if self.genderreviewscore.consecutive_correct > 0:
                 GenderReviewScore.objects.filter(noun__noun = noun.noun, noun__gender = noun.gender, user__username = self.username).update(
                     review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(days=self.genderreviewscore.interval) - datetime.timedelta(minutes=1))
             else:
                 GenderReviewScore.objects.filter(noun__noun = noun.noun, noun__gender = noun.gender, user__username = username).update(
-                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(minutes=6))
+                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(minutes=11))
 
     def make_last_due_and_review(self, quality):
-        self.get_genderreviewscore();
-        self.scopy = copy.copy(self.genderreviewscore)
-        #self.scopy = copy.copy(GenderReviewScore.objects.get(noun__noun = self.noun.noun, user__username = self.username))
         if self.is_rule:
-            self.make_card_due(None, self.scopy.rule, self.username)
+            scopy = copy.copy(GenderReviewScore.objects.get(rule__short_name = self.rule.short_name, user__username = self.username))
+            self.make_card_due(None, scopy.rule, self.username)
         else:
-            self.make_card_due(self.scopy.noun, None, self.username)
+            scopy = copy.copy(GenderReviewScore.objects.get(noun__noun = self.noun.noun, user__username = self.username))
+            self.make_card_due(scopy.noun, None, self.username)
         self.select_correct_answer()            # this question is not important
         self.authorized_next_question(5)        # this question is not important
         self.get_noun()
-        assert self.noun.noun == self.scopy.noun.noun
+        if self.is_rule:
+            assert self.rule.short_name == scopy.rule.short_name
+        else:
+            assert self.noun.noun == scopy.noun.noun
         if quality < 3:
             self.select_incorrect_answer()
         else:
             self.select_correct_answer()
         self.authorized_next_question(quality)  # this questino is the one we care about
-        self.genderreviewscore_verification(quality, self.scopy.interval, self.scopy.consecutive_correct, self.scopy.easiness_factor)
+        self.genderreviewscore_verification(quality, scopy.interval, scopy.consecutive_correct, scopy.easiness_factor)
 
