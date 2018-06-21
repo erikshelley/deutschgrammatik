@@ -54,6 +54,7 @@ class TestAdminPanel_UnAuthorized(TestCase):
             '/admin/deklination/rule/1/',
             '/admin/deklination/genderreviewscore/',
             '/admin/deklination/genderreviewscore/12/',
+            '/admin/deklination/genderreviewscore/16/',
             '/admin/progress/progress/',
             '/admin/progress/progress/16/',
             '/admin/logout/'
@@ -90,6 +91,7 @@ class TestAdminPanel_Authorized(TestCase):
             '/admin/deklination/rule/1/',
             '/admin/deklination/genderreviewscore/',
             '/admin/deklination/genderreviewscore/12/',
+            '/admin/deklination/genderreviewscore/16/',
             '/admin/progress/progress/',
             '/admin/progress/progress/16/',
             '/admin/logout/'
@@ -169,7 +171,7 @@ class SeleniumClass(StaticLiveServerTestCase):
 
 class TestRegistration(SeleniumClass):
     def test_valid_signup(self):
-        print '\nTest: Valid Registration'
+        print '\nUI Test: Valid Registration'
         self.signup('username1', 'firstname', 'lastname', 'email@example.com', 'testPass!', 'testPass!')
         self.validate_valid_signup('firstname', 'firstname lastname')
         self.signout()
@@ -186,7 +188,7 @@ class TestRegistration(SeleniumClass):
         self.validate_valid_signup('username5', 'username5')
 
     def test_invalid_signup(self):
-        print '\nTest: Invalid Registration'
+        print '\nUI Test: Invalid Registration'
         self.signup('username1', 'firstname', 'lastname', 'email@example.com', 'testPass!', 'testPass!')
         self.validate_valid_signup('firstname', 'firstname lastname')
         self.signout()

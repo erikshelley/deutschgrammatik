@@ -14,6 +14,7 @@ from contextlib import contextmanager
 from selenium.webdriver.firefox.webdriver           import WebDriver
 from selenium.webdriver.support.ui                  import WebDriverWait
 from selenium.webdriver.support.expected_conditions import staleness_of
+from selenium.webdriver.support                     import expected_conditions
 
 from .models import Noun, Rule, GenderReviewScore
 
@@ -100,7 +101,7 @@ class SeleniumClass(StaticLiveServerTestCase):
 
 class TestGenderQuiz(SeleniumClass):
     def test_guest_e2e(self):
-        print '\nTest: Gender Quiz Guest E2E'
+        print '\nUI Test: Gender Quiz Guest E2E'
         self.navigate_to_quiz()
         for i in range(6):
             self.verify_question_elements()
@@ -112,33 +113,42 @@ class TestGenderQuiz(SeleniumClass):
             self.select_incorrect_answer()
             self.verify_guest_incorrect_answer_elements()
             self.guest_next_question()
+        
+        # look for non-existant alert (test coverage)
+        self.accept_alert()
+
 
     def test_authorized_e2e(self):
-        print '\nTest: Gender Quiz Authorized E2E'
+        print '\nUI Test: Gender Quiz Authorized E2E'
         create_user(self, False)
         self.navigate_to_quiz()
         self.login()
 
-        # correct answer options
-        for i in range(3):
-            #print "Correct answer " + str(i)
-            #print "Verify question elements"
+        # correct answer options - do five to get to the first noun without a rule (Jahr)
+        for i in range(5):
             self.verify_question_elements()
-            #print "Select correct answer"
             self.select_correct_answer()
-            #print "Verify authorized correct answer elements"
             self.verify_authorized_correct_answer_elements()
-            #print self.noun.noun
-            #print "Authorized next question"
-            self.authorized_next_question(i+3)                  # quality
-            #print "Verification"
-            self.genderreviewscore_verification(i+3, 0, 0, 2.5)   # quality, interval, consecutive_correct, easiness_factor
+            self.authorized_next_question(i%3+3)                    # quality
+            self.genderreviewscore_verification(i%3+3, 0, 0, 2.5)   # quality, interval, consecutive_correct, easiness_factor
+
+        # try refreshing page
+        self.selenium.refresh()
+        self.accept_alert()
 
         # interval from 1 to 2, review overdue learned item
         self.make_last_due_and_review(5)
 
         # interval from 2 to SM2 update
         self.make_last_due_and_review(5)
+
+        # bring status from short to long 
+        self.make_last_due_and_review(5)
+
+        # bring status from long to short
+        # hit path reviewing noun with interval = 0
+        self.make_last_due_and_review(0)
+        self.make_last_due_and_review(0)
         
         # incorrect answer options
         for i in range(3):
@@ -146,7 +156,11 @@ class TestGenderQuiz(SeleniumClass):
             self.select_incorrect_answer()
             self.verify_authorized_incorrect_answer_elements()
             self.authorized_next_question(i)                    # quality
-            self.genderreviewscore_verification(i, 0, 0, 2.5)     # quality, interval, consecutive_correct, easiness_factor
+            self.genderreviewscore_verification(i, 0, 0, 2.5)   # quality, interval, consecutive_correct, easiness_factor
+
+        # try refreshing page
+        self.selenium.refresh()
+        self.accept_alert()
 
         # unlearned from more than five minutes ago
         self.make_last_due_and_review(0)
@@ -154,6 +168,15 @@ class TestGenderQuiz(SeleniumClass):
         # move easiness_factor below 1.3 to test min limit
         for i in range(3):
             self.make_last_due_and_review(0)
+
+        # hit path reviewing rule with interval > 0
+        self.make_last_due_and_review(5)
+        self.make_last_due_and_review(5)
+
+        # something like 29 reviews are needed to get to first rule exception (code coverage)
+        for i in range(22):
+            self.select_correct_answer()
+            self.authorized_next_question(4)                    # quality
 
 
     def get_rule(self):
@@ -176,6 +199,7 @@ class TestGenderQuiz(SeleniumClass):
         #print "Looking for " + noun_text + ":" + gender_text
         self.noun = Noun.objects.get(noun = noun_text, gender = gender)
         self.get_rule()
+        #print self.rule.short_name + ":" + self.noun.noun
         
     def get_article(self):
         self.get_noun()
@@ -194,7 +218,6 @@ class TestGenderQuiz(SeleniumClass):
             return "die"
         else:
             return "der"
-
 
     def navigate_to_quiz(self):
         self.selenium.get('%s%s' % (self.live_server_url, '/'))
@@ -320,9 +343,11 @@ class TestGenderQuiz(SeleniumClass):
 
     def make_last_due_and_review(self, quality):
         if self.is_rule:
+            #print "Rule due and review: " + self.rule.short_name
             scopy = copy.copy(GenderReviewScore.objects.get(rule__short_name = self.rule.short_name, user__username = self.username))
             self.make_card_due(None, scopy.rule, self.username)
         else:
+            #print "Noun due and review: " + self.noun.noun
             scopy = copy.copy(GenderReviewScore.objects.get(noun__noun = self.noun.noun, user__username = self.username))
             self.make_card_due(scopy.noun, None, self.username)
         self.select_correct_answer()            # this question is not important
@@ -338,4 +363,14 @@ class TestGenderQuiz(SeleniumClass):
             self.select_correct_answer()
         self.authorized_next_question(quality)  # this questino is the one we care about
         self.genderreviewscore_verification(quality, scopy.interval, scopy.consecutive_correct, scopy.easiness_factor)
+
+    def accept_alert(self):
+      try:
+        WebDriverWait(self.selenium, 5).until(expected_conditions.alert_is_present(), 'Timed out waiting for alert')
+        alert = self.selenium.switch_to_alert()
+        alert.accept()
+        time.sleep(2)
+      except:
+        print "No Alert Found"
+
 
