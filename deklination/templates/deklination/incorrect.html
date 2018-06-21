@@ -1,21 +1,22 @@
                     <h2 class="text-danger">Incorrect!</h2>
                       <ul class="text-left">
-                      {% if rule %}
-                        <li>This is an example of the rule <code>{{ rule.long_name }}</code>, which works {{ rule.pretty_percent }} of the time.</li>
-                      {% endif %}
-                      {% if matches %}
-                        {% for match in matches %}
-                          <li>This is an example of the rule <code>{{ match.rule.long_name }}</code>, which works {{ match.rule.pretty_percent }} of the time.</li>
-                        {% endfor %}
-                      {% endif %}
-                      {% if exceptions %}
-                        {% for exception in exceptions %}
-                          <li>This is an exception to the rule <code>{{ exception.rule.long_name }}</code>, which works {{ exception.rule.pretty_percent }} of the time.</li>
-                        {% endfor %}
-                      {% endif %}
-                      {% if not rule %}{% if not matches %}{% if not exceptions %}
-                        <li>None of the rules apply to this noun.</li>
-                      {% endif %}{% endif %}{% endif %}
+                        <li>The gender is {{ gender }} : <strong>{{ article }} {{ noun.noun}}</strong></li>
+                        {% if rule %}
+                          <li>This is an example of the rule <code>{{ rule.long_name }}</code>, which works {{ rule.pretty_percent }} of the time.</li>
+                        {% endif %}
+                        {% if matches %}
+                          {% for match in matches %}
+                            <li>This is an example of the rule <code>{{ match.rule.long_name }}</code>, which works {{ match.rule.pretty_percent }} of the time.</li>
+                          {% endfor %}
+                        {% endif %}
+                        {% if exceptions %}
+                          {% for exception in exceptions %}
+                            <li>This is an exception to the rule <code>{{ exception.rule.long_name }}</code>, which works {{ exception.rule.pretty_percent }} of the time.</li>
+                          {% endfor %}
+                        {% endif %}
+                        {% if not rule %}{% if not matches %}{% if not exceptions %}
+                          <li>None of the rules apply to this noun.</li>
+                        {% endif %}{% endif %}{% endif %}
                       </ul>
                     {% if user.is_authenticated %}
                       <p><strong>Do you know this now?</strong></p>
@@ -31,7 +32,6 @@
                         </div>
                       </form>
                     {% else %}
-                      <p>The gender is {{ gender }} : <strong>{{ article }} {{ noun.noun}}</strong></p>
                       <a role="button" href="{% url 'deklination:gender_quiz' %}" class="btn btn-md btn-primary">Next Question &raquo;</a>
                     {% endif %}
 

@@ -49,12 +49,14 @@ def index(request):
 def gender_quiz(request):
     context = {}
     context['page_subtitle'] = "Gender Quiz - Deklination - "
-    if request.user.is_authenticated():
-        progress = ProgressTracker()
-        context['next_review'] = progress.get_next_review(request.user)
 
     if request.method == 'POST':
         gender_quiz_record_response(request)
+
+    # this needs to be after the response is recorded
+    if request.user.is_authenticated():
+        progress = ProgressTracker()
+        context['next_review'] = progress.get_next_review(request.user)
 
     nouns = Noun.objects.all()
     gender_quiz_select_question(request, context, nouns)

@@ -288,20 +288,30 @@ class TestGenderQuiz(SeleniumClass):
         with self.wait_for_page_load(timeout=10):
         	self.selenium.find_element_by_xpath('//button[@id="signin"]').click()
 
-    def make_card_due(self, noun_text, username):
-        self.get_genderreviewscore();
-        if self.genderreviewscore.consecutive_correct > 0:
-            #GenderReviewScore.objects.filter(noun__noun = noun_text, user__username = username).update(
-            self.genderreviewscore.update(review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(days=self.genderreviewscore.interval) - datetime.timedelta(minutes=1))
+    def make_card_due(self, noun, rule, username):
+        if self.is_rule:
+            if self.genderreviewscore.consecutive_correct > 0:
+                GenderReviewScore.objects.filter(rule__short_name = rule.short_name, user__username = self.username).update(
+                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(days=self.genderreviewscore.interval) - datetime.timedelta(minutes=1))
+            else:
+                GenderReviewScore.objects.filter(rule__short_name = rule.short_name, user__username = self.username).update(
+                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(minutes=6))
         else:
-            #GenderReviewScore.objects.filter(noun__noun = noun_text, user__username = username).update(
-            self.genderreviewscore.update(review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(minutes=6))
+            if self.genderreviewscore.consecutive_correct > 0:
+                GenderReviewScore.objects.filter(noun__noun = noun.noun, noun__gender = noun.gender, user__username = self.username).update(
+                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(days=self.genderreviewscore.interval) - datetime.timedelta(minutes=1))
+            else:
+                GenderReviewScore.objects.filter(noun__noun = noun.noun, noun__gender = noun.gender, user__username = username).update(
+                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(minutes=6))
 
     def make_last_due_and_review(self, quality):
         self.get_genderreviewscore();
         self.scopy = copy.copy(self.genderreviewscore)
         #self.scopy = copy.copy(GenderReviewScore.objects.get(noun__noun = self.noun.noun, user__username = self.username))
-        self.make_card_due(self.scopy.noun.noun, self.username)
+        if self.is_rule:
+            self.make_card_due(None, self.scopy.rule, self.username)
+        else:
+            self.make_card_due(self.scopy.noun, None, self.username)
         self.select_correct_answer()            # this question is not important
         self.authorized_next_question(5)        # this question is not important
         self.get_noun()
