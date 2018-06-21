@@ -7,7 +7,7 @@ I decided to build a spaced repetition system for learning grammar rules that va
 card for a given rule each time it is seen while keeping the content applicable for that rule.
 
 ## Test Coverage
-[[Coverage](blob/master/coverage.svg)](http://codecov.io/github/nedbat/coveragepy?branch=master)
+[![Coverage](coverage.svg)](http://codecov.io/github/nedbat/coveragepy?branch=master)
 
 ## Screenshots
 Coming soon...
@@ -25,4 +25,4 @@ For the moment this project is not designed to be easy to install and setup.
 Instead a [working version](http://www.erikshelley.com/deutschgrammatik/) is available for use.
 
 ## License
-The code in this project is licensed under the [GNU General Public License v3.0](blob/master/license).
+The code in this project is licensed under the [GNU General Public License v3.0](LICENSE).
