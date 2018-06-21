@@ -15,7 +15,7 @@ from selenium.webdriver.firefox.webdriver           import WebDriver
 from selenium.webdriver.support.ui                  import WebDriverWait
 from selenium.webdriver.support.expected_conditions import staleness_of
 
-from .models import Noun, GenderQuizScore
+from .models import Noun, Rule, GenderReviewScore
 
 
 def create_user(self, admin):
@@ -90,7 +90,7 @@ class SeleniumClass(StaticLiveServerTestCase):
     def setUpClass(cls):
         super(SeleniumClass, cls).setUpClass()
         cls.selenium = WebDriver()
-        cls.selenium.implicitly_wait(10)
+        cls.selenium.implicitly_wait(1)
 
     @classmethod
     def tearDownClass(cls):
@@ -126,7 +126,7 @@ class TestGenderQuiz(SeleniumClass):
             self.verify_authorized_correct_answer_elements()
             #print self.noun.noun
             self.authorized_next_question(i+3)                  # quality
-            self.genderquizscore_verification(i+3, 0, 0, 2.5)   # quality, interval, consecutive_correct, easiness_factor
+            self.genderreviewscore_verification(i+3, 0, 0, 2.5)   # quality, interval, consecutive_correct, easiness_factor
 
         # interval from 1 to 2, review overdue learned item
         self.make_last_due_and_review(5)
@@ -140,7 +140,7 @@ class TestGenderQuiz(SeleniumClass):
             self.select_incorrect_answer()
             self.verify_authorized_incorrect_answer_elements()
             self.authorized_next_question(i)                    # quality
-            self.genderquizscore_verification(i, 0, 0, 2.5)     # quality, interval, consecutive_correct, easiness_factor
+            self.genderreviewscore_verification(i, 0, 0, 2.5)     # quality, interval, consecutive_correct, easiness_factor
 
         # unlearned from more than five minutes ago
         self.make_last_due_and_review(0)
@@ -150,9 +150,18 @@ class TestGenderQuiz(SeleniumClass):
             self.make_last_due_and_review(0)
 
 
+    def get_rule(self):
+        elements = self.selenium.find_elements_by_xpath('//form//input[@name="rule"]')
+        self.is_rule = False
+        if len(elements) > 0:
+            rule_text = self.selenium.find_element_by_xpath('//form//input[@name="rule"]').get_attribute('value')
+            self.rule = Rule.objects.get(short_name = rule_text)
+            self.is_rule = True
+
     def get_noun(self):
         noun_text = self.selenium.find_element_by_xpath('//a[@id="der-tab"]').text.replace("Der ","").replace(" | ","|")
         self.noun = Noun.objects.get(noun = noun_text)
+        self.get_rule()
         
     def get_article(self):
         self.get_noun()
@@ -213,25 +222,25 @@ class TestGenderQuiz(SeleniumClass):
         base_xpath = '//div[@id="' + self.get_article() + '"]'
         assert "show" in self.selenium.find_element_by_xpath(base_xpath).get_attribute('class')
         assert "Correct!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').text
-        assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').text
-        assert "How easy was that?" in self.selenium.find_element_by_xpath(base_xpath + '//p').text
+        #assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').text
+        assert "How hard was that?" in self.selenium.find_element_by_xpath(base_xpath + '//p').text
         assert self.noun.noun in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="noun"]').get_attribute('value')
         assert self.noun.english in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="english"]').get_attribute('value')
-        assert "Difficult" in self.selenium.find_element_by_xpath(base_xpath + '//form/button[@value="3"]').text
-        assert "Hesitated" in self.selenium.find_element_by_xpath(base_xpath + '//form/button[@value="4"]').text
-        assert "No Problem" in self.selenium.find_element_by_xpath(base_xpath + '//form/button[@value="5"]').text
+        assert "Difficult" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="3"]').text
+        assert "Hesitated" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="4"]').text
+        assert "No Problem" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="5"]').text
 
     def verify_authorized_incorrect_answer_elements(self):
         base_xpath = '//div[@id="' + self.get_incorrect_article() + '"]'
         assert "show" in self.selenium.find_element_by_xpath(base_xpath).get_attribute('class')
         assert "Incorrect!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').text
-        assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').text
-        assert "Do you remember it now?" in self.selenium.find_element_by_xpath(base_xpath + '//p').text
+        #assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').text
+        assert "Do you know it now?" in self.selenium.find_element_by_xpath(base_xpath + '//p').text
         assert self.noun.noun in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="noun"]').get_attribute('value')
         assert self.noun.english in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="english"]').get_attribute('value')
-        assert "Not Really" in self.selenium.find_element_by_xpath(base_xpath + '//form/button[@value="0"]').text
-        assert "Maybe" in self.selenium.find_element_by_xpath(base_xpath + '//form/button[@value="1"]').text
-        assert "Definitely" in self.selenium.find_element_by_xpath(base_xpath + '//form/button[@value="2"]').text
+        assert "Not Really" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="0"]').text
+        assert "Maybe" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="1"]').text
+        assert "Definitely" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="2"]').text
 
     def guest_next_question(self):
         with self.wait_for_page_load(timeout=10):
@@ -243,25 +252,31 @@ class TestGenderQuiz(SeleniumClass):
         else:
             base_xpath = '//div[@id="' + self.get_article() + '"]'
         with self.wait_for_page_load(timeout=10):
-        	self.selenium.find_element_by_xpath(base_xpath + '//form/button[@value="' + str(quality) + '"]').click()
+        	self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="' + str(quality) + '"]').click()
 
-    def genderquizscore_verification(self, quality, interval, consecutive_correct, easiness_factor):
-        genderquizscore = GenderQuizScore.objects.get(noun__noun = self.noun.noun, user__username = self.username)
+    def get_genderreviewscore(self):
+        if self.is_rule:
+            self.genderreviewscore = GenderReviewScore.objects.get(rule__short_name = self.rule.short_name, user__username = self.username)
+        else:
+            self.genderreviewscore = GenderReviewScore.objects.get(noun__noun = self.noun.noun, noun__gender = self.noun.gender, user__username = self.username)
+
+    def genderreviewscore_verification(self, quality, interval, consecutive_correct, easiness_factor):
+        self.get_genderreviewscore();
         if quality < 3:
-            self.assertEqual(genderquizscore.interval, 0)
-            self.assertEqual(genderquizscore.consecutive_correct, 0)
-            assert genderquizscore.review_date <= datetime.datetime.now(pytz.timezone('UTC')) + datetime.timedelta(seconds=5)
-            self.assertEqual(round(genderquizscore.easiness_factor, 2), round(max(1.3, easiness_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))), 2))
+            self.assertEqual(self.genderreviewscore.interval, 0)
+            self.assertEqual(self.genderreviewscore.consecutive_correct, 0)
+            assert self.genderreviewscore.review_date <= datetime.datetime.now(pytz.timezone('UTC')) + datetime.timedelta(seconds=5)
+            self.assertEqual(round(self.genderreviewscore.easiness_factor, 2), round(max(1.3, easiness_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))), 2))
         else:
             if interval == 0:
-                self.assertEqual(genderquizscore.interval, 1)
+                self.assertEqual(self.genderreviewscore.interval, 1)
             elif interval == 1:
-                self.assertEqual(genderquizscore.interval, 6)
+                self.assertEqual(self.genderreviewscore.interval, 6)
             else:
-                self.assertEqual(genderquizscore.interval, math.ceil(interval * easiness_factor))
-            self.assertEqual(genderquizscore.consecutive_correct, consecutive_correct + 1)
-            assert genderquizscore.review_date <= datetime.datetime.now(pytz.timezone('UTC')) + datetime.timedelta(seconds=5)
-            self.assertEqual(round(genderquizscore.easiness_factor, 2), round(easiness_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)), 2))
+                self.assertEqual(self.genderreviewscore.interval, math.ceil(interval * easiness_factor))
+            self.assertEqual(self.genderreviewscore.consecutive_correct, consecutive_correct + 1)
+            assert self.genderreviewscore.review_date <= datetime.datetime.now(pytz.timezone('UTC')) + datetime.timedelta(seconds=5)
+            self.assertEqual(round(self.genderreviewscore.easiness_factor, 2), round(easiness_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)), 2))
 
     def login(self):
         with self.wait_for_page_load(timeout=10):
@@ -274,16 +289,18 @@ class TestGenderQuiz(SeleniumClass):
         	self.selenium.find_element_by_xpath('//button[@id="signin"]').click()
 
     def make_card_due(self, noun_text, username):
-        genderquizscore = GenderQuizScore.objects.get(noun__noun = noun_text, user__username = username)
-        if genderquizscore.consecutive_correct > 0:
-            GenderQuizScore.objects.filter(noun__noun = noun_text, user__username = username).update(
-                review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(days=genderquizscore.interval) - datetime.timedelta(minutes=1))
+        self.get_genderreviewscore();
+        if self.genderreviewscore.consecutive_correct > 0:
+            #GenderReviewScore.objects.filter(noun__noun = noun_text, user__username = username).update(
+            self.genderreviewscore.update(review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(days=self.genderreviewscore.interval) - datetime.timedelta(minutes=1))
         else:
-            GenderQuizScore.objects.filter(noun__noun = noun_text, user__username = username).update(
-                review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(minutes=6))
+            #GenderReviewScore.objects.filter(noun__noun = noun_text, user__username = username).update(
+            self.genderreviewscore.update(review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(minutes=6))
 
     def make_last_due_and_review(self, quality):
-        self.scopy = copy.copy(GenderQuizScore.objects.get(noun__noun = self.noun.noun, user__username = self.username))
+        self.get_genderreviewscore();
+        self.scopy = copy.copy(self.genderreviewscore)
+        #self.scopy = copy.copy(GenderReviewScore.objects.get(noun__noun = self.noun.noun, user__username = self.username))
         self.make_card_due(self.scopy.noun.noun, self.username)
         self.select_correct_answer()            # this question is not important
         self.authorized_next_question(5)        # this question is not important
@@ -294,5 +311,5 @@ class TestGenderQuiz(SeleniumClass):
         else:
             self.select_correct_answer()
         self.authorized_next_question(quality)  # this questino is the one we care about
-        self.genderquizscore_verification(quality, self.scopy.interval, self.scopy.consecutive_correct, self.scopy.easiness_factor)
+        self.genderreviewscore_verification(quality, self.scopy.interval, self.scopy.consecutive_correct, self.scopy.easiness_factor)
 

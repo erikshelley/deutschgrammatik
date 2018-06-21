@@ -17,6 +17,7 @@ testdb.json
 # scripts for initializing database vocabulary
 noun_import.py
 nouns.csv
+db_imports/
 
 # virtual environment for required packages
 env/
@@ -28,4 +29,14 @@ env/
 dispatch.fcgi
 .htaccess
 static/
+
+# cleaning up migrations:
+#   python manage.py makemigrations
+#   python manage.py showmigrations
+#   python manage.py migrate --fake deklination zero
+#   python manage.py migrate --fake progress zero
+#   delete deklination/migrations/*.py? (not including __init__.py)
+#   delete progress/migrations/*.py? (not including __init__.py)
+#   python manage.py makemigrations
+#   python manage.py migrate --fake-initial
 

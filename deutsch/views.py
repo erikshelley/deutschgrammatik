@@ -4,6 +4,7 @@ from django.contrib.auth.forms  import UserCreationForm
 from django.shortcuts           import render, redirect, render_to_response
 from django.template            import RequestContext
 from forms                      import SignUpForm
+from progress.views             import ProgressTracker
 
 def index(request):
     context = {}
@@ -31,6 +32,9 @@ def index(request):
         'url': 'index'
         }
     context['card_deck'] = [card1, card2, card3]
+    if request.user.is_authenticated():
+        progress = ProgressTracker()
+        context['next_review'] = progress.get_next_review(request.user)
     return render(request, 'index.html', context)
 
 def signup(request):

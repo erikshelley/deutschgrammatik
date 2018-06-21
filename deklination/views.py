@@ -8,7 +8,7 @@ from django.utils               import timezone
 
 import random, math, datetime, pytz
 
-from .models                    import Noun, GenderQuizScore
+from .models                    import Noun, Rule, NounRule, GenderReviewScore
 from progress.models            import Progress
 from progress.views             import ProgressTracker
 
@@ -40,17 +40,159 @@ def index(request):
         'url': 'deklination:index'
         }
     context['card_deck'] = [card1, card2, card3]
+    if request.user.is_authenticated():
+        progress = ProgressTracker()
+        context['next_review'] = progress.get_next_review(request.user)
     return render(request, 'deklination/index.html', context)
     
+
+def gender_quiz(request):
+    context = {}
+    context['page_subtitle'] = "Gender Quiz - Deklination - "
+    if request.user.is_authenticated():
+        progress = ProgressTracker()
+        context['next_review'] = progress.get_next_review(request.user)
+
+    if request.method == 'POST':
+        gender_quiz_record_response(request)
+
+    nouns = Noun.objects.all()
+    gender_quiz_select_question(request, context, nouns)
+
+    context['count'] = nouns.count()
+    if len(nouns) > 0:
+        context['dict'] = context['noun'].noun.split('|')[0]
+        if context['noun'].gender == 'M':
+            context['article'] = "Der"
+            context['gender'] = "masculine"
+        elif context['noun'].gender == 'N':
+            context['article'] = "Das"
+            context['gender'] = "neuter"
+        else:
+            context['article'] = "Die"
+            context['gender'] = "feminine"
+        context['noun'].noun = context['noun'].noun.replace("|", " | ")
+
+    return render(request, 'deklination/gender_quiz.html', context)
+
+
+def gender_quiz_select_question(request, context, nouns):
+    if request.user.is_authenticated():
+        """ 
+        if there are reviews
+            if there are reviews with interval == 0 with review_date more than ten minutes ago
+                select oldest by review_date
+            if there are reviews with interval > 0 with review_date + interval > current_time
+                select largest ratio of overdue_amount / interval
+        if no review yet selected
+            determine unreviewed rule with largest frequency
+            determine unreviewed noun with largest frequency
+            select whichever has largest frequency
+        if selection is rule
+            select noun that matches rule
+        """
+        local_time = timezone.now()
+        # Look for reviews due with interval = 0
+        utc_time = local_time.astimezone(pytz.UTC)
+        utc_due = utc_time - timedelta(minutes = 10)
+        selected_review = GenderReviewScore.objects.filter(user = request.user, interval = 0, review_date__lt = utc_due).order_by('-review_date').first()
+
+        # Look for reviews due with interval > 0
+        if selected_review is None:
+            overdue_reviews = []
+            reviews = GenderReviewScore.objects.filter(user = request.user, interval__gt = 0)
+            for review in reviews:
+                overdue_amount = local_time - (review.review_date + timedelta(days = review.interval))
+                if overdue_amount.total_seconds() > 0:
+                    overdue_reviews.append((overdue_amount.total_seconds() / (review.interval * 24 * 60 * 60), review))
+            if len(overdue_reviews) > 0:
+                overdue_reviews.sort(ket=itemgetter(0), reverse=True)
+                selected_review = overdue_reviews[0][1]
+
+        # Look for new rule or noun to study
+        if selected_review is None:
+            reviewed_rules = list(GenderReviewScore.objects.filter(user = request.user).exclude(rule__isnull = True).values_list('rule', flat=True))
+            unreviewed_rule = Rule.objects.exclude(id__in = reviewed_rules).order_by('-frequency').first()
+
+            reviewed_nouns = list(GenderReviewScore.objects.filter(user = request.user).exclude(noun__isnull = True).values_list('noun', flat=True))
+            nouns_with_rules = list(NounRule.objects.filter(is_match = True).values_list('noun', flat=True))
+            unreviewed_noun = Noun.objects.exclude(id__in = reviewed_nouns).exclude(id__in = nouns_with_rules).order_by('-frequency').first()
+
+            context['review'] = 'New'
+            if unreviewed_rule.frequency >= unreviewed_noun.frequency:
+                context['rule'] = unreviewed_rule
+            else:
+                context['noun'] = unreviewed_noun
+        else:
+            context['review'] = 'Review'
+            if selected_review.rule is None:
+                context['noun'] = selected_review.noun
+            else:
+                reviewed_nouns = list(GenderReviewScore.objects.filter(user = request.user).values_list('noun', flat=True))
+                context['rule'] = selected_review.rule
+
+        if 'rule' in context:
+            """
+            if there are unreviewed nouns matching the rule select the most popular
+            if all nouns matching the rule have been reviewed select oldest
+            """
+            #nouns_matching_rule = list(NounRule.objects.filter(rule = context['rule'], is_match = True).values_list('noun', flat=True))
+            #unreviewed_noun = Noun.objects.filter(id__in = nouns_matching_rule).exclude(id__in = reviewed_nouns).order_by('-frequency').first()
+            #if unreviewed_noun is None:
+            #    oldest_review = GenderReviewScore.objects.filter(user = request.user, rule = context['rule']).order_by('review_date').first()
+            #    context['noun'] = oldest_review.noun;
+            #else:
+            #    context['noun'] = unreviewed_noun
+            nouns_matching_rule = NounRule.objects.filter(rule = context['rule'], is_match = True).select_related('noun')
+            context['noun'] = random.choice(nouns_matching_rule).noun
+
+            matches = NounRule.objects.filter(noun = context['noun'], is_match = True).exclude(rule = context['rule']).select_related('rule')
+            exceptions = NounRule.objects.filter(noun = context['noun'], is_match = False).exclude(rule = context['rule']).select_related('rule')
+        else:
+            matches = NounRule.objects.filter(noun = context['noun'], is_match = True).select_related('rule')
+            exceptions = NounRule.objects.filter(noun = context['noun'], is_match = False).select_related('rule')
+
+        if len(matches) > 0:
+            context['matches'] = matches
+
+        if len(exceptions) > 0:
+            context['exceptions'] = exceptions
+
+    else:
+        """
+        for unauthenticated users select a random noun (if there are nouns to choose from)
+        """
+        if len(nouns) > 0:
+            context['noun'] = random.choice(nouns)
+
+            matches = NounRule.objects.filter(noun = context['noun'], is_match = True).select_related('rule')
+            exceptions = NounRule.objects.filter(noun = context['noun'], is_match = False).select_related('rule')
+            if len(matches) > 0:
+                context['matches'] = matches
+            if len(exceptions) > 0:
+                context['exceptions'] = exceptions
+
 
 def gender_quiz_record_response(request):
     new_delta = 0
     short_delta = 0
     long_delta = 0
-    noun_key = request.POST['noun'].replace(" | ", "|")
-    noun = Noun.objects.get(noun = noun_key, english = request.POST['english'])
-    gender_srs, created = GenderQuizScore.objects.get_or_create(
+
+
+    # Lookup rule, or noun if no rule
+    if 'rule' in request.POST:
+        rule_key = request.POST['rule']
+        rule = Rule.objects.get(short_name = rule_key)
+        noun = None
+    else:
+        noun_key = request.POST['noun'].replace(" | ", "|")
+        noun = Noun.objects.get(noun = noun_key, english = request.POST['english'])
+        rule = None
+
+    # Lookup review score
+    gender_srs, created = GenderReviewScore.objects.get_or_create(
         noun        = noun,
+        rule        = rule,
         user        = request.user,
         defaults    = {'review_count': 0, 'easiness_factor': 2.5, 'consecutive_correct': 0, 'interval': 0})
 
@@ -100,71 +242,5 @@ def gender_quiz_record_response(request):
     gender_srs.save()
     progress = ProgressTracker()
     progress.update_progress(request.user, 'DG', quality, new_delta, short_delta, long_delta)
-
-
-def gender_quiz_select_question(request, context, nouns):
-    if request.user.is_authenticated():
-        """ 
-        if there are nouns due for review 
-          if interval is zero then select noun with longest time since last review (at least five minutes ago)
-          if there are no nouns selected yet select noun with the largest ratio of overdue / interval
-        if there are no nouns due for review
-          select most popular noun not yet reviewed
-        """
-        reviews = GenderQuizScore.objects.filter(user = request.user).select_related('noun')
-        context['review'] = 'Review'
-        if len(reviews) > 0:
-            unlearned_nouns = []
-            overdue_nouns = []
-            current_time = timezone.now()
-            for review in reviews:
-                overdue_amount = current_time - (review.review_date + timedelta(days = review.interval))
-                if review.interval == 0:
-                    if review.review_date + timedelta(minutes = 10) < current_time:
-                        unlearned_nouns.append((review.review_date, review.noun))
-                elif overdue_amount.total_seconds() > 0:
-                    overdue_nouns.append((overdue_amount.total_seconds() / (review.interval * 24 * 60 * 60), review.noun))
-            if len(unlearned_nouns) > 0:
-                unlearned_nouns.sort(key=itemgetter(0), reverse=True)
-                context['noun'] = unlearned_nouns[0][1]
-            elif len(overdue_nouns) > 0:
-                overdue_nouns.sort(key=itemgetter(0), reverse=True)
-                context['noun'] = overdue_nouns[0][1]
-        if 'noun' not in context:
-            context['review'] = 'New'
-            for noun in nouns:
-                review = GenderQuizScore.objects.filter(user = request.user, noun = noun)
-                if len(review) == 0:
-                    context['noun'] = noun
-                    break
-    elif len(nouns) > 0:
-        context['noun'] = random.choice(nouns)
-
-
-def gender_quiz(request):
-    context = {}
-    context['page_subtitle'] = "Gender Quiz - Deklination - "
-
-    if request.method == 'POST':
-        gender_quiz_record_response(request)
-
-    nouns = Noun.objects.all().order_by('rank')
-    gender_quiz_select_question(request, context, nouns)
-
-    context['count'] = nouns.count()
-    if len(nouns) > 0:
-        context['dict'] = context['noun'].noun.split('|')[0]
-        if context['noun'].gender == 'M':
-            context['article'] = "Der"
-            context['gender'] = "masculine"
-        elif context['noun'].gender == 'N':
-            context['article'] = "Das"
-            context['gender'] = "neuter"
-        else:
-            context['article'] = "Die"
-            context['gender'] = "feminine"
-        context['noun'].noun = context['noun'].noun.replace("|", " | ")
-
-    return render(request, 'deklination/gender_quiz.html', context)
 
 

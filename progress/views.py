@@ -8,7 +8,7 @@ from django.shortcuts 		        import render
 from jchart                         import Chart
 from jchart.config                  import Axes, DataSet, rgba, ScaleLabel, Tick
 from .models                        import Progress
-from deklination.models             import GenderQuizScore
+from deklination.models             import GenderReviewScore
 
 
 @login_required
@@ -36,6 +36,9 @@ def index(request):
         'url': 'progress:learned'
         }
     context['card_deck'] = [card1, card2]
+    if request.user.is_authenticated():
+        progress = ProgressTracker()
+        context['next_review'] = progress.get_next_review(request.user)
     return render(request, 'progress/index.html', context)
 
     
@@ -80,6 +83,38 @@ class ProgressTracker:
         progress.quality_5 += quality_count[5]
         progress.save()
 
+    """
+    You have x reviews due now.
+    Your next review is due at ...
+    """
+    def get_next_review(self, user):
+        local_time = timezone.now()
+        reviews = GenderReviewScore.objects.filter(user = user)
+        if len(reviews) > 0:
+            overdue = 0
+            first_review = True
+            for review in reviews:
+                # Positive = due in future
+                # Negative = due in past
+                time_due = review.review_date + timedelta(days = review.interval)
+                if time_due < local_time:
+                    overdue += 1
+                else:
+                    if (first_review == True) or (time_due < min_time_due):
+                        first_review = False
+                        min_time_due = time_due
+                        next_review_due = review.review_date + timedelta(days = review.interval)
+            if overdue > 0:
+                if overdue > 1:
+                    return "You have " + str(overdue) + " items due for review. "
+                else:
+                    return "You have " + str(overdue) + " item due for review. "
+            else:
+                return "Your next item is due for review on " + timezone.localtime(next_review_due).strftime("%b %e, %Y at %r") + ". "
+        else:
+            return ""
+
+
 
 def daterange(start_date, end_date):
     for n in range(int ((end_date - start_date).days)):
@@ -115,7 +150,7 @@ class ReviewChart(Chart):
 
         due_dates = {}
         new_dates = {}
-        scores = GenderQuizScore.objects.filter(user = user)
+        scores = GenderReviewScore.objects.filter(user = user)
         for score in scores:
             first_review = timezone.localtime(score.first_review).date()
             if first_review in new_dates:

@@ -47,8 +47,15 @@ class TestAdminPanel_UnAuthorized(TestCase):
             '/admin/password_change/',
             '/admin/deklination/',
             '/admin/deklination/noun/',
-            '/admin/deklination/genderquizscore/',
-            '/admin/deklination/genderquizscore/8/',
+            '/admin/deklination/noun/846/',
+            '/admin/deklination/nounrule/',
+            '/admin/deklination/nounrule/4256/',
+            '/admin/deklination/rule/',
+            '/admin/deklination/rule/1/',
+            '/admin/deklination/genderreviewscore/',
+            '/admin/deklination/genderreviewscore/12/',
+            '/admin/progress/progress/',
+            '/admin/progress/progress/16/',
             '/admin/logout/'
         ]
         for page in admin_pages:
@@ -76,8 +83,15 @@ class TestAdminPanel_Authorized(TestCase):
             '/admin/password_change/',
             '/admin/deklination/',
             '/admin/deklination/noun/',
-            '/admin/deklination/genderquizscore/',
-            '/admin/deklination/genderquizscore/8/',
+            '/admin/deklination/noun/846/',
+            '/admin/deklination/nounrule/',
+            '/admin/deklination/nounrule/4256/',
+            '/admin/deklination/rule/',
+            '/admin/deklination/rule/1/',
+            '/admin/deklination/genderreviewscore/',
+            '/admin/deklination/genderreviewscore/12/',
+            '/admin/progress/progress/',
+            '/admin/progress/progress/16/',
             '/admin/logout/'
         ]
         for page in admin_pages:

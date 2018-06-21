@@ -13,6 +13,7 @@
 			  <div class="list-group" id="list-tab">
                 <a class="list-group-item list-group-item-action bg-info text-light font-weight-bold" data-toggle="collapse" href="#list-title" id="list-title-list" aria-controls="title" disabled>
                     Identify Gender{% if review %} ({{ review }}){% endif %}</a>
+			    <div class="list-group-item list-group-item-action text-info font-weight-bold bg-light" style="pointer-events: none;" disabled>"{{ noun.english }}"</div>
 			    <a class="list-group-item list-group-item-action" data-toggle="collapse" id="der-tab" href=".der" aria-expanded="false" aria-controls="dict der">Der {{ noun.noun }}</a>
 			    <a class="list-group-item list-group-item-action" data-toggle="collapse" id="das-tab" href=".das" aria-expanded="false" aria-controls="dict das">Das {{ noun.noun }}</a>
 			    <a class="list-group-item list-group-item-action" data-toggle="collapse" id="die-tab" href=".die" aria-expanded="false" aria-controls="dict die">Die {{ noun.noun }}</a>
@@ -58,7 +59,7 @@
 		    <div class="row">
 		      <div class="col-sm">
 			    <div id="definition-card" class="card card-body pt-0 border-0 text-center">
-                  <a id="definition-toggle" href="#">Show Definition</a>
+                  <a id="definition-toggle" href="#">Show Dictionary</a>
                   <div class="embed-responsive embed-responsive-1by1" id="definition-embed" style="display: none;">
                     <iframe class="embed-responsive-item" id="definition-frame" src=""></iframe>
                   </div>
