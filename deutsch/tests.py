@@ -1,42 +1,64 @@
 # -*- coding: utf-8 -*-
 #from __future__ import unicode_literals
 
-from django.conf                        import settings
-from django.contrib.auth.models         import User
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.core.cache                  import cache
-from django.test                        import TestCase, Client
-from django.test.client                 import RequestFactory
+from django.conf                                    import settings
+from django.contrib.staticfiles.testing             import StaticLiveServerTestCase
+from django.contrib.auth.models                     import User
+from django.core.cache                              import cache
+from django.test                                    import TestCase, Client
+from django.test.client                             import RequestFactory
 
 import copy, datetime, math, os, pytz, re, time, unittest, unicodecsv as csv
 
-from contextlib import contextmanager
+from contextlib                                     import contextmanager
 
 from selenium.webdriver.firefox.webdriver           import WebDriver
 from selenium.webdriver.support.ui                  import WebDriverWait
 from selenium.webdriver.support.expected_conditions import staleness_of
 
-from views import error_400, error_403, error_404, error_500
+from views                                          import error_400, error_403, error_404, error_500
 
-def create_user(self, admin):
-    self.username = 'test_admin'
-    self.password = User.objects.make_random_password()
-    user, created = User.objects.get_or_create(username=self.username)
-    user.set_password(self.password)
-    user.first_name = 'First'
-    user.last_name = 'Last'
-    user.is_staff = admin
-    user.is_superuser = admin
-    user.is_active = True
-    user.save()
-    self.user = user
+class TestUserManagement:
+    def create_user(self, username, password, admin):
+        user, created = User.objects.get_or_create(username=username)
+        user.set_password(password)
+        user.first_name = 'First'
+        user.last_name = 'Last'
+        user.is_staff = admin
+        user.is_superuser = admin
+        user.is_active = True
+        user.save()
+
+class SeleniumClass(StaticLiveServerTestCase):
+    fixtures = ['testdb.json']
+    serialized_rollback = True
+
+    @contextmanager
+    def wait_for_page_load(cls, timeout=30):
+        old_page = cls.selenium.find_element_by_tag_name('html')
+        yield
+        WebDriverWait(cls.selenium, timeout).until(staleness_of(old_page))
+
+    @classmethod
+    def setUpClass(cls):
+        super(SeleniumClass, cls).setUpClass()
+        cls.selenium = WebDriver()
+        cls.selenium.implicitly_wait(1)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.selenium.quit()
+        super(SeleniumClass, cls).tearDownClass()
 
 
 class TestAdminPanel_UnAuthorized(TestCase):
     def test_spider_admin_unauthorized(self):
         print '\nTest: UnAuthorized Admin'
-        create_user(self, False)
-        self.client.login(username=self.username, password=self.password)
+        username = 'test_spider_admin_unauthorized'
+        password = User.objects.make_random_password()
+        tum = TestUserManagement()
+        tum.create_user(username, password, False)
+        self.client.login(username=username, password=password)
         admin_pages = [
             '/admin/',
             '/admin/auth/',
@@ -72,8 +94,11 @@ class TestAdminPanel_Authorized(TestCase):
 
     def test_spider_admin(self):
         print '\nTest: Authorized Admin'
-        create_user(self, True)
-        self.client.login(username=self.username, password=self.password)
+        username = 'test_spider_admin'
+        password = User.objects.make_random_password()
+        tum = TestUserManagement()
+        tum.create_user(username, password, True)
+        self.client.login(username=username, password=password)
         admin_pages = [
             '/admin/',
             '/admin/auth/',
@@ -121,8 +146,11 @@ class TestHomePage_Guest(TestCase):
 class TestHomePage_Authorized(TestCase):
     def test_authorized_homepage(self):
         print '\nTest: Authorized Homepage'
-        create_user(self, False)
-        self.client.login(username=self.username, password=self.password)
+        username = 'test_authorized_homepage'
+        password = User.objects.make_random_password()
+        tum = TestUserManagement()
+        tum.create_user(username, password, False)
+        self.client.login(username=username, password=password)
         resp = self.client.get('/', follow=True)
         assert 'Sign Up' not in resp.content
         assert 'Sign In' not in resp.content
@@ -146,28 +174,6 @@ class TestErrorPages(TestCase):
         response = error_500(request)
         self.assertEqual(response.status_code, 500)
         
-
-class SeleniumClass(StaticLiveServerTestCase):
-    fixtures = ['testdb.json']
-    serialized_rollback = True
-
-    @contextmanager
-    def wait_for_page_load(cls, timeout=30):
-        old_page = cls.selenium.find_element_by_tag_name('html')
-        yield
-        WebDriverWait(cls.selenium, timeout).until(staleness_of(old_page))
-
-    @classmethod
-    def setUpClass(cls):
-        super(SeleniumClass, cls).setUpClass()
-        cls.selenium = WebDriver()
-        cls.selenium.implicitly_wait(10)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.selenium.quit()
-        super(SeleniumClass, cls).tearDownClass()
-
 
 class TestRegistration(SeleniumClass):
     def test_valid_signup(self):

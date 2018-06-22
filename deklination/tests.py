@@ -1,36 +1,24 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__                                     import unicode_literals
 
-from django.contrib.auth.models         import User
-from django.core.cache                  import cache
-from django.conf                        import settings
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.test                        import TestCase, Client
+from django.contrib.auth.models                     import User
+from django.core.cache                              import cache
+from django.conf                                    import settings
+from django.contrib.staticfiles.testing             import StaticLiveServerTestCase
+from django.test                                    import TestCase, Client
 
 import copy, datetime, math, os, pytz, re, time, unittest, unicodecsv as csv
 
-from contextlib import contextmanager
+from contextlib                                     import contextmanager
 
 from selenium.webdriver.firefox.webdriver           import WebDriver
 from selenium.webdriver.support.ui                  import WebDriverWait
 from selenium.webdriver.support.expected_conditions import staleness_of
 from selenium.webdriver.support                     import expected_conditions
 
-from .models import Noun, Rule, GenderReviewScore
+from .models                                        import Noun, Rule, GenderReviewScore
+from deutsch.tests                                  import TestUserManagement, SeleniumClass
 
-
-def create_user(self, admin):
-    self.username = "test_deklination"
-    self.password = User.objects.make_random_password()
-    user, created = User.objects.get_or_create(username=self.username)
-    user.set_password(self.password)
-    user.first_name = "First"
-    user.last_name = "Last"
-    user.is_staff = admin
-    user.is_superuser = admin
-    user.is_active = True
-    user.save()
-    self.user = user
 
 def check_universal_items(resp):
     assert resp.status_code == 200
@@ -64,8 +52,11 @@ class TestDeklination(TestCase):
 
     def test_deklination_authorized(self):
         print '\nTest: Deklination Authorized'
-        create_user(self, False)
-        self.client.login(username=self.username, password=self.password)
+        username = 'test_deklination_authorized'
+        password = User.objects.make_random_password()
+        tum = TestUserManagement()
+        tum.create_user(username, password, False)
+        self.client.login(username=username, password=password)
         resp = self.client.get("/deklination/", follow=True)
         check_universal_items(resp)
         check_authorized_items(self, resp)
@@ -77,107 +68,96 @@ class TestGenderQuizEmptyDB(TestCase):
         resp = self.client.get("/deklination/gender_quiz/", follow=True)
         
 
-class SeleniumClass(StaticLiveServerTestCase):
-    fixtures = ['testdb.json']
-    serialized_rollback = True
-
-    @contextmanager
-    def wait_for_page_load(cls, timeout=30):
-        old_page = cls.selenium.find_element_by_tag_name('html')
-        yield
-        WebDriverWait(cls.selenium, timeout).until(staleness_of(old_page))
-
-    @classmethod
-    def setUpClass(cls):
-        super(SeleniumClass, cls).setUpClass()
-        cls.selenium = WebDriver()
-        cls.selenium.implicitly_wait(1)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.selenium.quit()
-        super(SeleniumClass, cls).tearDownClass()
-
-
 class TestGenderQuiz(SeleniumClass):
     def test_guest_e2e(self):
         print '\nUI Test: Gender Quiz Guest E2E'
-        self.navigate_to_quiz()
+        tda = TestDeklinationActions(self.selenium, self.live_server_url, self.wait_for_page_load)
+        tda.navigate_to_quiz()
         for i in range(6):
-            self.verify_question_elements()
-            self.select_correct_answer()
-            self.verify_guest_correct_answer_elements()
-            self.guest_next_question()
+            tda.verify_question_elements()
+            tda.select_correct_answer()
+            tda.verify_guest_correct_answer_elements()
+            tda.guest_next_question()
         for i in range(6):
-            self.verify_question_elements()
-            self.select_incorrect_answer()
-            self.verify_guest_incorrect_answer_elements()
-            self.guest_next_question()
+            tda.verify_question_elements()
+            tda.select_incorrect_answer()
+            tda.verify_guest_incorrect_answer_elements()
+            tda.guest_next_question()
         
         # look for non-existant alert (test coverage)
-        self.accept_alert()
+        tda.accept_alert()
 
 
     def test_authorized_e2e(self):
         print '\nUI Test: Gender Quiz Authorized E2E'
-        create_user(self, False)
-        self.navigate_to_quiz()
-        self.login()
+        username = 'test_authorized_e2e'
+        password = User.objects.make_random_password()
+        tum = TestUserManagement()
+        tum.create_user(username, password, False)
+        tda = TestDeklinationActions(self.selenium, self.live_server_url, self.wait_for_page_load)
+        tda.navigate_to_quiz()
+        tda.login(username, password)
 
         # correct answer options - do five to get to the first noun without a rule (Jahr)
         for i in range(5):
-            self.verify_question_elements()
-            self.select_correct_answer()
-            self.verify_authorized_correct_answer_elements()
-            self.authorized_next_question(i%3+3)                    # quality
-            self.genderreviewscore_verification(i%3+3, 0, 0, 2.5)   # quality, interval, consecutive_correct, easiness_factor
+            tda.verify_question_elements()
+            tda.select_correct_answer()
+            tda.verify_authorized_correct_answer_elements()
+            tda.authorized_next_question(i%3+3)                    # quality
+            tda.genderreviewscore_verification(i%3+3, 0, 0, 2.5)   # quality, interval, consecutive_correct, easiness_factor
 
         # try refreshing page
-        self.selenium.refresh()
-        self.accept_alert()
+        tda.selenium.refresh()
+        tda.accept_alert()
 
         # interval from 1 to 2, review overdue learned item
-        self.make_last_due_and_review(5)
+        tda.make_last_due_and_review(5)
 
         # interval from 2 to SM2 update
-        self.make_last_due_and_review(5)
+        tda.make_last_due_and_review(5)
 
         # bring status from short to long 
-        self.make_last_due_and_review(5)
+        tda.make_last_due_and_review(5)
 
         # bring status from long to short
         # hit path reviewing noun with interval = 0
-        self.make_last_due_and_review(0)
-        self.make_last_due_and_review(0)
+        tda.make_last_due_and_review(0)
+        tda.make_last_due_and_review(0)
         
         # incorrect answer options
         for i in range(3):
-            self.verify_question_elements()
-            self.select_incorrect_answer()
-            self.verify_authorized_incorrect_answer_elements()
-            self.authorized_next_question(i)                    # quality
-            self.genderreviewscore_verification(i, 0, 0, 2.5)   # quality, interval, consecutive_correct, easiness_factor
+            tda.verify_question_elements()
+            tda.select_incorrect_answer()
+            tda.verify_authorized_incorrect_answer_elements()
+            tda.authorized_next_question(i)                    # quality
+            tda.genderreviewscore_verification(i, 0, 0, 2.5)   # quality, interval, consecutive_correct, easiness_factor
 
         # try refreshing page
-        self.selenium.refresh()
-        self.accept_alert()
+        tda.selenium.refresh()
+        tda.accept_alert()
 
         # unlearned from more than five minutes ago
-        self.make_last_due_and_review(0)
+        tda.make_last_due_and_review(0)
 
         # move easiness_factor below 1.3 to test min limit
         for i in range(3):
-            self.make_last_due_and_review(0)
+            tda.make_last_due_and_review(0)
 
         # hit path reviewing rule with interval > 0
-        self.make_last_due_and_review(5)
-        self.make_last_due_and_review(5)
+        tda.make_last_due_and_review(5)
+        tda.make_last_due_and_review(5)
 
         # something like 29 reviews are needed to get to first rule exception (code coverage)
         for i in range(22):
-            self.select_correct_answer()
-            self.authorized_next_question(4)                    # quality
+            tda.select_correct_answer()
+            tda.authorized_next_question(4)                    # quality
 
+
+class TestDeklinationActions:
+    def __init__(self, selenium, live_server_url, wait_for_page_load):
+        self.selenium = selenium
+        self.live_server_url = live_server_url
+        self.wait_for_page_load = wait_for_page_load
 
     def get_rule(self):
         elements = self.selenium.find_elements_by_xpath('//form//input[@name="rule"]')
@@ -196,10 +176,8 @@ class TestGenderQuiz(SeleniumClass):
             gender = 'N'
         else:
             gender = 'F'
-        #print "Looking for " + noun_text + ":" + gender_text
         self.noun = Noun.objects.get(noun = noun_text, gender = gender)
         self.get_rule()
-        #print self.rule.short_name + ":" + self.noun.noun
         
     def get_article(self):
         self.get_noun()
@@ -298,58 +276,66 @@ class TestGenderQuiz(SeleniumClass):
             self.genderreviewscore = GenderReviewScore.objects.get(noun__noun = self.noun.noun, noun__gender = self.noun.gender, user__username = self.username)
 
     def genderreviewscore_verification(self, quality, interval, consecutive_correct, easiness_factor):
-        self.get_genderreviewscore();
+        self.get_genderreviewscore()
         if quality < 3:
-            self.assertEqual(self.genderreviewscore.interval, 0)
-            self.assertEqual(self.genderreviewscore.consecutive_correct, 0)
+            assert self.genderreviewscore.interval == 0
+            assert self.genderreviewscore.consecutive_correct == 0
             assert self.genderreviewscore.review_date <= datetime.datetime.now(pytz.timezone('UTC')) + datetime.timedelta(seconds=5)
-            self.assertEqual(round(self.genderreviewscore.easiness_factor, 2), round(max(1.3, easiness_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))), 2))
+            assert round(self.genderreviewscore.easiness_factor, 2) == round(max(1.3, easiness_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))), 2)
         else:
             if interval == 0:
-                self.assertEqual(self.genderreviewscore.interval, 1)
+                assert self.genderreviewscore.interval == 1
             elif interval == 1:
-                self.assertEqual(self.genderreviewscore.interval, 6)
+                assert self.genderreviewscore.interval == 6
             else:
-                self.assertEqual(self.genderreviewscore.interval, math.ceil(interval * easiness_factor))
-            self.assertEqual(self.genderreviewscore.consecutive_correct, consecutive_correct + 1)
+                assert self.genderreviewscore.interval == math.ceil(interval * easiness_factor)
+            assert self.genderreviewscore.consecutive_correct == consecutive_correct + 1
             assert self.genderreviewscore.review_date <= datetime.datetime.now(pytz.timezone('UTC')) + datetime.timedelta(seconds=5)
-            self.assertEqual(round(self.genderreviewscore.easiness_factor, 2), round(easiness_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)), 2))
+            assert round(self.genderreviewscore.easiness_factor, 2) == round(easiness_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)), 2)
 
-    def login(self):
+    def login(self, username, password):
+        self.username = username
+        self.password = password
         with self.wait_for_page_load(timeout=10):
         	self.selenium.find_element_by_xpath('//div[@class="jumbotron pb-2"]/div/p/a[contains(text(), "Sign In")]').click()
         username_input = self.selenium.find_element_by_name("username")
-        username_input.send_keys(self.username)
+        username_input.send_keys(username)
         password_input = self.selenium.find_element_by_name("password")
-        password_input.send_keys(self.password)
+        password_input.send_keys(password)
         with self.wait_for_page_load(timeout=10):
         	self.selenium.find_element_by_xpath('//button[@id="signin"]').click()
 
-    def make_card_due(self, noun, rule, username):
+    def make_card_due(self, genderreviewscore, username, delta):
         if self.is_rule:
-            if self.genderreviewscore.consecutive_correct > 0:
-                GenderReviewScore.objects.filter(rule__short_name = rule.short_name, user__username = self.username).update(
-                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(days=self.genderreviewscore.interval) - datetime.timedelta(minutes=1))
+            if genderreviewscore.consecutive_correct > 0:
+                GenderReviewScore.objects.filter(rule__short_name = genderreviewscore.rule.short_name, user__username = self.username).update(
+                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(days=genderreviewscore.interval) - delta)
             else:
-                GenderReviewScore.objects.filter(rule__short_name = rule.short_name, user__username = self.username).update(
-                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(minutes=11))
+                GenderReviewScore.objects.filter(rule__short_name = genderreviewscore.rule.short_name, user__username = self.username).update(
+                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(minutes=10) - delta)
         else:
-            if self.genderreviewscore.consecutive_correct > 0:
-                GenderReviewScore.objects.filter(noun__noun = noun.noun, noun__gender = noun.gender, user__username = self.username).update(
-                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(days=self.genderreviewscore.interval) - datetime.timedelta(minutes=1))
+            if genderreviewscore.consecutive_correct > 0:
+                GenderReviewScore.objects.filter(noun__noun = genderreviewscore.noun.noun, noun__gender = genderreviewscore.noun.gender, user__username = self.username).update(
+                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(days=genderreviewscore.interval) - delta)
             else:
-                GenderReviewScore.objects.filter(noun__noun = noun.noun, noun__gender = noun.gender, user__username = username).update(
-                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(minutes=11))
+                GenderReviewScore.objects.filter(noun__noun = genderreviewscore.noun.noun, noun__gender = genderreviewscore.noun.gender, user__username = username).update(
+                    review_date = datetime.datetime.now(pytz.timezone('UTC')) - datetime.timedelta(minutes=10) - delta)
+
+    def make_last_overdue(self):
+        self.get_genderreviewscore()
+        self.make_card_due(self.genderreviewscore, self.username, datetime.timedelta(days=2))
+
+    def make_last_due(self):
+        self.get_genderreviewscore()
+        self.make_card_due(self.genderreviewscore, self.username, datetime.timedelta(minutes=1))
 
     def make_last_due_and_review(self, quality):
         if self.is_rule:
-            #print "Rule due and review: " + self.rule.short_name
             scopy = copy.copy(GenderReviewScore.objects.get(rule__short_name = self.rule.short_name, user__username = self.username))
-            self.make_card_due(None, scopy.rule, self.username)
+            self.make_card_due(scopy, self.username, datetime.timedelta(minutes=1))
         else:
-            #print "Noun due and review: " + self.noun.noun
             scopy = copy.copy(GenderReviewScore.objects.get(noun__noun = self.noun.noun, user__username = self.username))
-            self.make_card_due(scopy.noun, None, self.username)
+            self.make_card_due(scopy, self.username, datetime.timedelta(minutes=1))
         self.select_correct_answer()            # this question is not important
         self.authorized_next_question(5)        # this question is not important
         self.get_noun()
