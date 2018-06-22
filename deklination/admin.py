@@ -8,7 +8,7 @@ from .models import Noun, Rule, NounRule, GenderReviewScore
 class NounAdmin(admin.ModelAdmin):
     list_display = ('frequency', 'noun', 'gender', 'english', 'nom_plural', 'dat_plural', 'genitive', 'matches_rule')
     list_filter = ['gender']
-    search_fields = ['noun__noun']
+    search_fields = ['noun']
     ordering = ['-frequency']
 
 

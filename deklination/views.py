@@ -63,7 +63,7 @@ def gender_quiz(request):
 
     context['count'] = nouns.count()
     if len(nouns) > 0:
-        context['dict'] = context['noun'].noun.split('|')[0]
+        context['dict'] = context['noun'].noun
         if context['noun'].gender == 'M':
             context['article'] = "Der"
             context['gender'] = "masculine"
@@ -73,7 +73,7 @@ def gender_quiz(request):
         else:
             context['article'] = "Die"
             context['gender'] = "feminine"
-        context['noun'].noun = context['noun'].noun.replace("|", " | ")
+        context['noun'].noun = context['noun'].noun
 
     return render(request, 'deklination/gender_quiz.html', context)
 

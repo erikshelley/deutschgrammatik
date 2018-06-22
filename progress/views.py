@@ -20,7 +20,8 @@ def index(request):
         'title': 'Items Reviewed',  
         'text': "See how many new items you studied each day, how many you reviewed each day, and how many are due for review to reinforce them in you memory.",
         'chart': 'progress:review_chart',
-        'chart_args': request.user,
+        'chart_user': request.user, 
+        'chart_delta': 7,
         'button_id': 'begin_reviewed',
         'button_text': 'View &raquo;',
         'url': 'progress:reviewed'
@@ -30,7 +31,8 @@ def index(request):
         'title': 'Items Learned',  
         'text': 'See how many items you are learning, how many you can remember over the short-term, and how many you have committed to long-term memory.',
         'chart': 'progress:learned_chart',
-        'chart_args': request.user,
+        'chart_user': request.user,
+        'chart_delta': 7,
         'button_id': 'begin_learned',
         'button_text': 'View &raquo;',
         'url': 'progress:learned'
@@ -135,10 +137,10 @@ class ReviewChart(Chart):
                            'ticks': { 'min': 0 },
                            'scaleLabel': ScaleLabel(display = True, fontStyle = 'bold', labelString = 'Items Per Day') }] }
 
-    def get_labels(self, username):
+    def get_labels(self, username, delta):
         labels = []
         today = timezone.now()
-        for single_datetime in daterange(today - timedelta(days=7), today + timedelta(days=8)):
+        for single_datetime in daterange(today - timedelta(days=int(delta)), today + timedelta(days=int(delta)+1)):
             local_datetime = timezone.localtime(single_datetime).replace(hour=0, minute=0, second=0, microsecond=0)
             local_date = local_datetime.date()
             month = local_date.strftime('%b')
@@ -147,7 +149,7 @@ class ReviewChart(Chart):
             labels.append(month + ' ' + str(ordinal(day)))
         return labels
 
-    def get_datasets(self, username):
+    def get_datasets(self, username, delta):
         user = User.objects.get(username = username)
         today = timezone.now()
         new_data = []
@@ -173,7 +175,7 @@ class ReviewChart(Chart):
             else:
                 due_dates[due_date] = 1
 
-        for single_datetime in daterange(today - timedelta(days=7), today + timedelta(days=8)):
+        for single_datetime in daterange(today - timedelta(days=int(delta)), today + timedelta(days=int(delta)+1)):
             single_date = single_datetime.date()
             local_date = timezone.localtime(single_datetime).date()
             past_reviews = Progress.objects.filter(user = user, quiz = 'DG', review_date = local_date)
@@ -234,10 +236,10 @@ class LearnedChart(Chart):
                            'ticks': { 'min': 0 },
                            'scaleLabel': ScaleLabel(display = True, fontStyle = 'bold', labelString = 'Total Items') }] }
 
-    def get_labels(self, username):
+    def get_labels(self, username, delta):
         labels = []
         today = timezone.now()
-        for single_datetime in daterange(today - timedelta(days=14), today + timedelta(days=1)):
+        for single_datetime in daterange(today - timedelta(days=int(delta)*2), today + timedelta(days=1)):
             local_datetime = timezone.localtime(single_datetime).replace(hour=0, minute=0, second=0, microsecond=0)
             local_date = local_datetime.date()
             month = local_date.strftime('%b')
@@ -246,7 +248,7 @@ class LearnedChart(Chart):
             labels.append(month + ' ' + str(ordinal(day)))
         return labels
 
-    def get_datasets(self, username):
+    def get_datasets(self, username, delta):
         user = User.objects.get(username = username)
         today = timezone.now()
         """
@@ -260,13 +262,13 @@ class LearnedChart(Chart):
         new_count = 0
         short_count = 0
         long_count = 0
-        start_datetime = today.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=14)
+        start_datetime = today.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=int(delta)*2)
         previous_progress = Progress.objects.filter(user = user, quiz = 'DG', review_date__lt = start_datetime)
         if len(previous_progress) > 0:
             new_count = previous_progress[0].new_count
             short_count = previous_progress[0].short_count
             long_count = previous_progress[0].long_count
-        for single_datetime in daterange(today - timedelta(days=14), today + timedelta(days=1)):
+        for single_datetime in daterange(today - timedelta(days=int(delta)*2), today + timedelta(days=1)):
             local_datetime = timezone.localtime(single_datetime).replace(hour=0, minute=0, second=0, microsecond=0)
             local_date = local_datetime.date()
             progress = Progress.objects.filter(user = user, quiz = 'DG', review_date = local_date)

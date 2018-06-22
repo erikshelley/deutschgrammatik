@@ -28,6 +28,7 @@ card for a given rule each time it is seen while keeping the content applicable 
 - [ ] Sample Sentences for Identifying Cases and Declension
 - [ ] Automatic Detection of Obvious Cases in Sample Sentences
 - [ ] Ability to Manually Confirm Ambiguous Cases in Sample Sentences
+- [ ] Save Time Zone Information per User
 - [ ] Future Work: Conjugation and Word Order
 
 ## Screenshots

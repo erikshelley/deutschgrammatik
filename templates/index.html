@@ -43,7 +43,7 @@
               <div class="card-body">
                 <p>
                 {% autoescape off %}{{ card.text }}{% endautoescape %}
-                {% if card.chart %}{% load jchart %}{% render_chart card.chart card.chart_args %}{% endif %}
+                {% if card.chart %}{% load jchart %}{% render_chart card.chart card.chart_user card.chart_delta %}{% endif %}
                 </p>
               </div>
               <div class="card-footer bg-transparent border-0">

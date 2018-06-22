@@ -69,12 +69,12 @@ class TestProgressEmptyDB(TestCase):
         check_universal_items(resp)
         check_authorized_items(self, resp)
 
-        resp = self.client.get("/progress/charts/review_chart/" + username + "/")
+        resp = self.client.get("/progress/charts/review_chart/" + username + "/7/")
         check_authorized_chart_items(self, resp)
         expected_regex = re.compile(r'"data": \[(0, ){14}0\],', re.MULTILINE|re.DOTALL)
         unittest.TestCase.assertRegexpMatches(self, resp.content.encode('utf-8'), expected_regex)
 
-        resp = self.client.get("/progress/charts/learned_chart/" + username + "/")
+        resp = self.client.get("/progress/charts/learned_chart/" + username + "/7/")
         check_authorized_chart_items(self, resp)
         expected_regex = re.compile(r'"data": \[(0, ){14}0\],', re.MULTILINE|re.DOTALL)
         unittest.TestCase.assertRegexpMatches(self, resp.content.encode('utf-8'), expected_regex)
