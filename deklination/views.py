@@ -252,3 +252,130 @@ def gender_quiz_record_response(request):
     progress.update_progress(request.user, 'DG', quality, new_delta, short_delta, long_delta)
 
 
+"""
+case_quiz
+  record response or select question
+  context : german sentence, english sentence, noun, case
+
+
+select_question
+  guest users see random sentence
+  select rule (due for review if exists otherwise new)
+  select sentence for rule based on score and rule review counter
+
+
+record_response
+  create or update casereviewscore
+  update progress tracker
+
+
+http://linguatools.org/tools/corpora/webcrawl-parallel-corpus-german-english-2015/#excluded
+sentence_loader
+  for each sentence
+      count words
+      for each noun
+          determine noun frequency & gender
+          determine if noun is nominative plural, dative plural, or genitive
+              sort sentences by number of letters and words 
+                  awk '{gsub(/^[^A-Za-z0-9]+/,"",$0); printf("%07d\t%d\t%d\t%s\n", NR, length($0), NF, $0);}' europarl-v7.de-en.de > europarl-v7.de-en.de.num
+                  awk '{gsub(/^[^A-Za-z0-9]+/,"",$0); printf("%07d\t%d\t%d\n", NR, length($0), NF);}' europarl-v7.de-en.de > europarl-v7.de-en.de.nums
+                  paste -d '\t' europarl-v7.de-en.de.nums  europarl-v7.de-en.en > europarl-v7.de-en.en.num
+                  sort -n -k2,2 -k3,3r -k1,1 europarl-v7.de-en.de.num > europarl-v7.de-en.de.srt
+              discard long sentences (and very short sentences)
+                  discard <3 words
+                      grep -vE $'^[0-9]{7}\t[0-9]+\t[0-2]\t' europarl-v7.de-en.de.srt > europarl-v7.de-en.de.nos
+                      grep -vE $'^[0-9]{7}\t[0-9]+\t[0-2]\t' europarl-v7.de-en.en.srt > europarl-v7.de-en.en.nos
+                  discard >80 characters
+                      manual edit in vim
+              build list of unique capitalized words
+                  sed -r -e 's/^[0-9]{7}\t[0-9]+\t[0-9]+\t//' -e 's/[A-Z][a-z]+//' -e 's/[0-9.,!%?()":;\/]//g' -e 's/\+/ /g' -e "s/'|-|\[|\]//g" -e 's/\b[a-z]+\b//g' -e 's/[ ]{2,20}/ /g' -e 's/^ //' -e 's/ /\n/g' *.de.nos | 
+                      sort -u > europarl-v7.de-en.de.cap
+              combine list with unique list of nouns (comm --help)
+                  noun list from Excel
+                  sort -u europarl-v7.de-en.noun-list | sed 's/^$\n//' > europarl-v7.de-en.nouns
+                  manual edit (first row)
+                  comm -12 europarl-v7.de-en.de.cap_mod europarl-v7.de-en.nouns > europarl-v7.de-en.de.nouns
+                  manual edits
+              find lines that contain items from this combined list
+                  sed -r -e 's/[A-Z][a-z]+\b//' europarl-v7.de-en.de.nos | sort -n > europarl-v7.de-en.de.nos.rest
+                  grep -w -F -f europarl-v7.de-en.de.nouns europarl-v7.de-en.de.nos.rest | sed -r -e 's/^([0-9]{7}).*/\1/' > europarl-v7.de-en.de.row_nums
+                  sort -n europarl-v7.de-en.de.nos > europarl-v7.de-en.de.nos.srt
+                  sort -n europarl-v7.de-en.en.nos > europarl-v7.de-en.en.nos.srt
+                  grep -w -F -f europarl-v7.de-en.de.row_nums europarl-v7.de-en.de.nos.srt > europarl-v7.de-en.de.final
+                  grep -w -F -f europarl-v7.de-en.de.row_nums europarl-v7.de-en.en.nos.srt > europarl-v7.de-en.en.final
+                      
+          determine if form is adj:noun, dir:noun, ind:noun, dir:adj:noun, ind:adj:noun (dir & ind include pronouns)
+              how? 
+                  scan each word through columns of article and adjective tables?
+          determine case
+              nominative
+                  ind    : adj-er : mas
+                  dir-er : adj-e  : mas
+                           adj-er : mas
+              accusative
+                  ind-en : adj-en : mas
+                  dir-en : adj-en : mas
+                           adj-en : mas
+              dative
+                  ind-em : adj-en : mas
+                  dir-em : adj-en : mas
+                           adj-em : mas
+                  ind-em : adj-en : neu
+                  dir-em : adj-en : neu
+                           adj-em : neu
+                  ind-en : adj-en : plu-dat
+                  dir-en : adj-en : plu-dat
+                           adj-en : plu-dat
+                                    plu-dat
+              genitive
+                  ind-es : adj-en : mas-gen
+                  dir-es : adj-en : mas-gen
+                           adj-en : mas-gen
+                                    mas-gen
+                  ind-es : adj-en : neu-gen
+                  dir-es : adj-en : neu-gen
+                           adj-en : neu-gen
+                                    neu-gen
+                  ind-er : adj-en : plu-nom
+                  dir-er : adj-en : plu-nom
+                           adj-er : plu-nom
+              nominative or accusative
+                  ind    : adj-es : neu
+                  dir-es : adj-e  : neu
+                           adj-es : neu
+                  ind-e  : adj-e  : fem
+                  dir-e  : adj-e  : fem
+                           adj-e  : fem
+                  ind-e  : adj-en : plu-nom
+                  dir-e  : adj-en : plu-nom
+                           adj-e  : plu-nom
+              dative or genitive
+                  ind-er : adj-en : fem
+                  dir-er : adj-en : fem
+                           adj-er : fem
+          determine rule(s)
+              subject vs object vs direct object (sentence unlikely to have more than one of each?)
+              nominative has no preposition?
+              accusative preposition
+              dative preposition
+              genitive preposition
+              two-way preposition (accusative:wohin or dative:wo)
+              dative verb
+          flag ambiguous cases for review
+          flag ambiguous rules for review
+      reject sentences
+          no known noun
+          too many words
+          save to rejected sentence files (german & english)
+      if not rejected
+          save sentence-entry (german, english)
+          calculate score (sentence length, noun-frequency)
+          save case-entry with score, sentence id, noun id, case, rule, needs_review
+
+
+
+"""
+
+
+
+
