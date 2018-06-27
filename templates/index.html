@@ -18,8 +18,8 @@
             <small class="text-white-50">You are signed in as <b>{{ user.get_full_name|default:user.get_username }}</b>.
             {% if next_review %}{{ next_review }}{% endif %}</small>
           {% else %}
-            <small class="text-white-50"><a href="{% url 'signup' %}" class="text-light font-weight-bold">Sign Up</a>
-            or <a href="{% url 'login' %}?next={{ request.path }}" class="text-light font-weight-bold">Sign In</a> 
+            <small class="text-white-50"><a href="{% url 'signup' %}" class="text-warning font-weight-bold">Sign Up</a>
+            or <a href="{% url 'login' %}?next={{ request.path }}" class="text-warning font-weight-bold">Sign In</a> 
             to track your progress and use spaced repetition.</small>
           {% endif %}
           </p>

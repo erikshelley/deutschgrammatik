@@ -159,7 +159,7 @@ def daterange(start_date, end_date):
 
 class ReviewChart(Chart):
     chart_type = 'bar'
-    title = Title(display = True, text = 'Deklension', fontSize = 16)
+    title = Title(display = True, text = 'Deklension : Gender', fontSize = 16)
     legend = { 'display': True, 'position': 'bottom' }
     scales = { 'xAxes': [{ 'stacked': True }], 
                'yAxes': [{ 'stacked': True,
@@ -262,7 +262,7 @@ review_chart = ReviewChart()
 
 class LearnedChart(Chart):
     chart_type = 'bar'
-    title = Title(display = True, text = 'Deklension', fontSize = 16)
+    title = Title(display = True, text = 'Deklension : Gender', fontSize = 16)
     legend = { 'display': True, 'position': 'bottom' }
     scales = { 'xAxes': [{ 'stacked': True }], 
                'yAxes': [{ 'stacked': True,

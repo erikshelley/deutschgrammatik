@@ -1,7 +1,7 @@
     {% extends "deklination/index.html" %}
     {% load staticfiles %}
 
-    {% block lead-title %}Gender Quiz{% endblock lead-title %}
+    {% block lead-title %}<a class="text-white" href="{% url 'deklination:index' %}">Deklination</a> &raquo; Gender Quiz{% endblock lead-title %}
     {% block lead-content %}Choose the correct gender below.{% endblock lead-content %}
 
       {% block content %}

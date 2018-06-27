@@ -1,7 +1,7 @@
     {% extends "index.html" %}
     {% load staticfiles %}
 
-    {% block lead-title %}Items Learned{% endblock lead-title %}
+    {% block lead-title %}<a class="text-white" href="{% url 'progress:index' %}">Progress</a> &raquo; Items Learned{% endblock lead-title %}
     {% block lead-content %}Here is the history of what you have learned.{% endblock lead-content %}
 
       {% block content %}
