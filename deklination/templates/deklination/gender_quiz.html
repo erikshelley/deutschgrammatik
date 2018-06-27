@@ -5,20 +5,30 @@
     {% block lead-content %}Choose the correct gender below.{% endblock lead-content %}
 
       {% block content %}
-      <div class="container">
+      <div class="my-3 p-3 bg-white rounded box-shadow">
 
         {% if noun %}
-          <div class="row text-center">
-            <div class="col-sm">
-			  <div class="list-group border" id="list-tab">
-                <a class="list-group-item list-group-item-action bg-info text-light font-weight-bold" data-toggle="collapse" href="#list-title" id="list-title-list" aria-controls="title" disabled>
-                    Identify Gender{% if review %} ({{ review }}){% endif %}</a>
-			    <div class="list-group-item list-group-item-action text-info font-weight-bold bg-light" style="pointer-events: none;" disabled>"{{ noun.english }}"</div>
-			    <a class="list-group-item list-group-item-action" data-toggle="collapse" id="der-tab" href=".der" aria-expanded="false" aria-controls="dict der">Der {{ noun.noun }}</a>
-			    <a class="list-group-item list-group-item-action" data-toggle="collapse" id="das-tab" href=".das" aria-expanded="false" aria-controls="dict das">Das {{ noun.noun }}</a>
-			    <a class="list-group-item list-group-item-action" data-toggle="collapse" id="die-tab" href=".die" aria-expanded="false" aria-controls="dict die">Die {{ noun.noun }}</a>
-			  </div>
-		    </div>
+          <h5 id="list-title-list" class="mb-1">{{ noun.noun }} <span class="small text-muted">({{ review }})</span></h5>
+          <ul class="fa-ul ml-4"><li class="text-info small"><span class="fa-li fa fa-info-circle fa-lg"></span> {{ noun.english }}</li></ul>
+          <div class="list-group list-group-flush border-top border-bottom" id="list-tab">
+			<a class="list-group-item list-group-item-action" data-toggle="collapse" id="der-tab" href=".der" aria-expanded="false" aria-controls="dict der">
+              <div class="row text-left">
+                <div class="col-0"><span class="far fa-circle  fa-lg text-primary mr-2"></span></div>
+                <div class="col">Der {{ noun.noun }}</div>
+              </div>
+            </a>
+			<a class="list-group-item list-group-item-action" data-toggle="collapse" id="das-tab" href=".das" aria-expanded="false" aria-controls="dict das">
+              <div class="row text-left">
+                <div class="col-0"><span class="far fa-circle  fa-lg text-primary mr-2" style="vertical-align: middle;"></span></div>
+                <div class="col">Das {{ noun.noun }}</div>
+              </div>
+            </a>
+			<a class="list-group-item list-group-item-action" data-toggle="collapse" id="die-tab" href=".die" aria-expanded="false" aria-controls="dict die">
+              <div class="row text-left">
+                <div class="col-0"><span class="far fa-circle  fa-lg text-primary mr-2" style="vertical-align: middle;"></span></div>
+                <div class="col">Die {{ noun.noun }}</div>
+              </div>
+            </a>
 		  </div>
 
 		  <div class="collapse multi-collapse der" id="der">
@@ -78,10 +88,6 @@
     {% block scripts %}
     <script>
 
-    $( document ).ready(function() {
-      $('#list-title-list').css('pointer-events','none');
-    });
-
     $('#definition-toggle').on('click', function(e) {
       $('#definition-toggle').hide();
       $('#definition-card').removeClass('border-0');
@@ -100,29 +106,20 @@
       $('#der-tab').addClass('d-none');
       $('#das-tab').addClass('d-none');
       $('#die-tab').addClass('d-none');
+      $('#der-tab span').removeClass('text-primary');
+      $('#das-tab span').removeClass('text-primary');
+      $('#die-tab span').removeClass('text-primary');
+      $('#der-tab span').addClass('text-muted');
+      $('#das-tab span').addClass('text-muted');
+      $('#die-tab span').addClass('text-muted');
+      $('#der-tab span').removeClass('far');
+      $('#das-tab span').removeClass('far');
+      $('#die-tab span').removeClass('far');
+      $('#der-tab span').addClass('fa');
+      $('#das-tab span').addClass('fa');
+      $('#die-tab span').addClass('fa');
       $(this).removeClass('d-none');
-      /*$(this).css('user-select', 'none');
-      $(this).css('-o-user-select', 'none');
-      $(this).css('-moz-user-select', 'none');
-      $(this).css('-khtml-user-select', 'none');
-      $(this).css('-webkit-user-select', 'none');*/
     });
-
-    /*$('#list-tub a').on('click', function (e) {
-      e.preventDefault();
-      $(this).tab('show');
-      if ( $(this).hasClass('active') ) {
-        $(this).addClass('text-primary');
-        $(this).addClass('font-weight-bold');
-        $(this).addClass('bg-light');
-        $(this).removeClass('active');
-        $(this).removeClass('d-none');
-      }
-      $('#list-tab *').removeAttr('href');
-      $('#list-tab *').addClass('disabled');
-      $('#list-title-list').addClass('text-light');
-      $('#list-title-list').addClass('bg-primary');
-    });*/
 
     </script>
     {% endblock scripts %}

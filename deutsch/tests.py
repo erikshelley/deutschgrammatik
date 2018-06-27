@@ -137,9 +137,9 @@ class TestHomePage_Guest(TestCase):
         resp = self.client.get('/', follow=True)
         assert 'Sign Up' in resp.content
         assert 'Sign In' in resp.content
-        assert 'Deklination</h4>' in resp.content
-        assert 'Konjugation</h4>' in resp.content
-        assert 'Wortstellung</h4>' in resp.content
+        assert 'Deklination</strong>' in resp.content
+        assert 'Konjugation</strong>' in resp.content
+        assert 'Wortstellung</strong>' in resp.content
         expected_regex = re.compile(r'<nav .+?Hello Guest.+?Sign Up.+?</nav>', re.MULTILINE|re.DOTALL)
         unittest.TestCase.assertRegexpMatches(self, resp.content, expected_regex)
 
@@ -154,9 +154,9 @@ class TestHomePage_Authorized(TestCase):
         resp = self.client.get('/', follow=True)
         assert 'Sign Up' not in resp.content
         assert 'Sign In' not in resp.content
-        assert 'Deklination</h4>' in resp.content
-        assert 'Konjugation</h4>' in resp.content
-        assert 'Wortstellung</h4>' in resp.content
+        assert 'Deklination</strong>' in resp.content
+        assert 'Konjugation</strong>' in resp.content
+        assert 'Wortstellung</strong>' in resp.content
         expected_regex = re.compile(r'<nav .+?Hello First.+?Sign Out.+?</nav>', re.MULTILINE|re.DOTALL)
         unittest.TestCase.assertRegexpMatches(self, resp.content, expected_regex)
 
@@ -229,7 +229,7 @@ class TestRegistration(SeleniumClass):
         
     def validate_valid_signup(self, top_nav_name, lead_name):
         assert top_nav_name in self.selenium.find_element_by_xpath('//a[@id="navbarDropdownMenuLink"]').text
-        assert lead_name in self.selenium.find_element_by_xpath('//main/div/div[2]/p').text
+        assert lead_name in self.selenium.find_element_by_xpath('//main/div/div/p/small').text
 
     def validate_signup_error(self, input_id, error_text, username, firstname, lastname, email):
         assert 'There were error(s) with your submission.' in self.selenium.find_element_by_xpath('//div[@id="form_error"]').text

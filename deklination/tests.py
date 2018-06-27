@@ -39,9 +39,9 @@ def check_authorized_items(self, resp):
 
 class TestDeklination(TestCase):
     def check_quiz_options(self, resp):
-        assert "Identify Gender</h4>" in resp.content
-        assert "Identify Case</h4>" in resp.content
-        assert "Identify Declension</h4>" in resp.content
+        assert "Identify Gender</strong>" in resp.content
+        assert "Identify Case</strong>" in resp.content
+        assert "Identify Declension</strong>" in resp.content
 
     def test_deklination_guest(self):
         print '\nTest: Deklination Guest'
@@ -168,7 +168,7 @@ class TestDeklinationActions:
             self.is_rule = True
 
     def get_noun(self):
-        noun_text = self.selenium.find_element_by_xpath('//a[@id="der-tab"]').get_attribute('innerHTML').replace("Der ","")
+        noun_text = self.selenium.find_element_by_xpath('//a[@id="der-tab"]/div/div[2]').get_attribute('innerHTML').replace("Der ","")
         gender_text = self.selenium.find_element_by_xpath('//div[h2[@class="text-success"]]/ul/li/strong').get_attribute('innerHTML').replace(" " + noun_text,"")
         if gender_text == 'Der':
             gender = 'M'
@@ -205,11 +205,11 @@ class TestDeklinationActions:
         	self.selenium.find_element_by_xpath('//a[@id="begin_gender"]').click()
         
     def verify_question_elements(self):
-        assert "Identify Gender" in self.selenium.find_element_by_xpath('//a[@id="list-title-list"]').get_attribute('innerHTML')
+        self.get_noun()
+        assert self.noun.noun in self.selenium.find_element_by_xpath('//h5[@id="list-title-list"]').get_attribute('innerHTML')
         assert "Der " in self.selenium.find_element_by_xpath('//a[@id="der-tab"]').get_attribute('innerHTML')
         assert "Das " in self.selenium.find_element_by_xpath('//a[@id="das-tab"]').get_attribute('innerHTML')
         assert "Die " in self.selenium.find_element_by_xpath('//a[@id="die-tab"]').get_attribute('innerHTML')
-        self.get_noun()
 
     def select_correct_answer(self):
         self.selenium.find_element_by_xpath('//a[@id="' + self.get_article() + '-tab"]').click()
@@ -297,7 +297,7 @@ class TestDeklinationActions:
         self.username = username
         self.password = password
         with self.wait_for_page_load(timeout=10):
-        	self.selenium.find_element_by_xpath('//div[@class="jumbotron pb-2"]/div/p/a[contains(text(), "Sign In")]').click()
+        	self.selenium.find_element_by_xpath('//main/div/div/p/small/a[contains(text(), "Sign In")]').click()
         username_input = self.selenium.find_element_by_name("username")
         username_input.send_keys(username)
         password_input = self.selenium.find_element_by_name("password")

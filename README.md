@@ -42,6 +42,7 @@ Instead a [working version](http://www.erikshelley.com/deutschgrammatik/) is ava
 * [Django](https://www.djangoproject.com/)
 * [Bootstrap](https://getbootstrap.com/)
 * [Django-JChart](https://github.com/matthisk/django-jchart)
+* [Font Awesome](https://fontawesome.com/)
 
 ## License
 The code in this project is licensed under the [GNU General Public License v3.0](LICENSE).

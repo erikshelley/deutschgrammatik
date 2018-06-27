@@ -6,7 +6,7 @@ from django.contrib.auth.models     import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts 		        import render
 from jchart                         import Chart
-from jchart.config                  import Axes, DataSet, rgba, ScaleLabel, Tick
+from jchart.config                  import Axes, DataSet, rgba, ScaleLabel, Tick, Title
 from .models                        import Progress
 from deklination.models             import GenderReviewScore
 
@@ -19,6 +19,7 @@ def index(request):
         'disabled': False, 
         'title': 'Items Reviewed',  
         'text': "See how many new items you studied each day, how many you reviewed each day, and how many are due for review to reinforce them in you memory.",
+        'icon': 'chart-bar',
         'chart': 'progress:review_chart',
         'chart_user': request.user, 
         'chart_delta': 7,
@@ -30,6 +31,7 @@ def index(request):
         'disabled': False,  
         'title': 'Items Learned',  
         'text': 'See how many items you are learning, how many you can remember over the short-term, and how many you have committed to long-term memory.',
+        'icon': 'chart-bar',
         'chart': 'progress:learned_chart',
         'chart_user': request.user,
         'chart_delta': 7,
@@ -41,6 +43,7 @@ def index(request):
     if request.user.is_authenticated():
         progress = ProgressTracker()
         context['next_review'] = progress.get_next_review(request.user)
+        context['dek_reviews'] = progress.get_review_count(request.user, 'DG')
     return render(request, 'progress/index.html', context)
 
     
@@ -48,6 +51,8 @@ def index(request):
 def reviewed(request):
     context = {}
     context['page_subtitle'] = 'Items Reviewed - Progress - '
+    progress = ProgressTracker()
+    context['dek_reviews'] = progress.get_review_count(request.user, 'DG')
     #if request.method == POST:
     #    quality = int(request.POST['quality'])
     return render(request, 'progress/reviewed.html', context)
@@ -57,6 +62,8 @@ def reviewed(request):
 def learned(request):
     context = {}
     context['page_subtitle'] = 'Items Learned - Progress - '
+    progress = ProgressTracker()
+    context['dek_reviews'] = progress.get_review_count(request.user, 'DG')
     return render(request, 'progress/learned.html', context)
 
 
@@ -84,6 +91,27 @@ class ProgressTracker:
         progress.quality_4 += quality_count[4]
         progress.quality_5 += quality_count[5]
         progress.save()
+
+    def get_review_count(self, user, quiz):
+        local_time = timezone.now()
+        if (quiz == 'DG') or (quiz == 'ALL'):
+            reviews = GenderReviewScore.objects.filter(user = user)
+        else:
+            reviews = None
+        if len(reviews) > 0:
+            overdue = 0
+            first_review = True
+            for review in reviews:
+                if review.interval == 0:
+                    time_due = timezone.localtime(review.review_date) + timedelta(minutes = 10)
+                else:
+                    time_due = timezone.localtime(review.review_date) + timedelta(days = review.interval)
+                if time_due < local_time:
+                    overdue += 1
+            return overdue
+        else:
+            return 0
+
 
     """
     You have x reviews due now.
@@ -131,6 +159,7 @@ def daterange(start_date, end_date):
 
 class ReviewChart(Chart):
     chart_type = 'bar'
+    title = Title(display = True, text = 'Deklension', fontSize = 16)
     legend = { 'display': True, 'position': 'bottom' }
     scales = { 'xAxes': [{ 'stacked': True }], 
                'yAxes': [{ 'stacked': True,
@@ -152,6 +181,8 @@ class ReviewChart(Chart):
     def get_datasets(self, username, delta):
         user = User.objects.get(username = username)
         today = timezone.now()
+        local_datetime = timezone.localtime(today).replace(hour=0, minute=0, second=0, microsecond=0)
+        local_date = local_datetime.date()
         new_data = []
         review_data = []
         due_data = []
@@ -168,8 +199,8 @@ class ReviewChart(Chart):
 
             last_review = timezone.localtime(score.review_date).date()
             due_date = last_review + timedelta(days=score.interval)
-            if due_date < today.date():
-                due_date = today.date()
+            if due_date < local_date:
+                due_date = local_date
             if due_date in due_dates:
                 due_dates[due_date] += 1
             else:
@@ -178,6 +209,7 @@ class ReviewChart(Chart):
         for single_datetime in daterange(today - timedelta(days=int(delta)), today + timedelta(days=int(delta)+1)):
             single_date = single_datetime.date()
             local_date = timezone.localtime(single_datetime).date()
+            utc_date = single_datetime.astimezone(pytz.UTC).date()
             past_reviews = Progress.objects.filter(user = user, quiz = 'DG', review_date = local_date)
             if len(past_reviews) > 0:
                 progress = past_reviews[0]
@@ -230,6 +262,7 @@ review_chart = ReviewChart()
 
 class LearnedChart(Chart):
     chart_type = 'bar'
+    title = Title(display = True, text = 'Deklension', fontSize = 16)
     legend = { 'display': True, 'position': 'bottom' }
     scales = { 'xAxes': [{ 'stacked': True }], 
                'yAxes': [{ 'stacked': True,

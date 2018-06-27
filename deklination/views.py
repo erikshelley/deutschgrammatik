@@ -19,6 +19,7 @@ def index(request):
         'disabled': False, 
         'title': 'Identify Gender',  
         'text': 'The first step in correct declination is to know the gender of the noun in question. If you need practice on noun genders then start here.',
+        'icon': 'list-ul',
         'button_id': 'begin_gender',
         'button_text': 'Practice &raquo;',
         'url': 'deklination:gender_quiz'
@@ -27,6 +28,7 @@ def index(request):
         'disabled': True,  
         'title': 'Identify Case',  
         'text': 'The second step in correct declination is to know the case of the noun in question. If you need practice on case identification then start here.',
+        'icon': 'list-ul',
         'button_id': 'begin_case',
         'button_text': 'Coming Soon',
         'url': 'deklination:index'
@@ -35,14 +37,17 @@ def index(request):
         'disabled': True,  
         'title': 'Identify Declension', 
         'text': 'The final step in correct declination is to know what ending to use on the articles, adjectives, pronouns, and nouns.',
+        'icon': 'list-ul',
         'button_id': 'begin_declension',
         'button_text': 'Coming Soon',
         'url': 'deklination:index'
         }
-    context['card_deck'] = [card1, card2, card3]
     if request.user.is_authenticated():
         progress = ProgressTracker()
         context['next_review'] = progress.get_next_review(request.user)
+        context['dek_reviews'] = progress.get_review_count(request.user, 'DG')
+        card1['reviews_due'] = progress.get_review_count(request.user, 'DG')
+    context['card_deck'] = [card1, card2, card3]
     return render(request, 'deklination/index.html', context)
     
 
@@ -57,6 +62,7 @@ def gender_quiz(request):
     if request.user.is_authenticated():
         progress = ProgressTracker()
         context['next_review'] = progress.get_next_review(request.user)
+        context['dek_reviews'] = progress.get_review_count(request.user, 'DG')
 
     nouns = Noun.objects.all()
     gender_quiz_select_question(request, context, nouns)
@@ -121,19 +127,19 @@ def gender_quiz_select_question(request, context, nouns):
             unreviewed_noun = Noun.objects.exclude(id__in = reviewed_nouns).exclude(id__in = nouns_with_rules).order_by('-frequency').first()
 
             if unreviewed_rule.frequency >= unreviewed_noun.frequency:
-                context['review'] = 'New Rule'
+                context['review'] = 'New'
                 context['rule'] = unreviewed_rule
                 noun_index = 0
             else:
-                context['review'] = 'New Noun'
+                context['review'] = 'New'
                 context['noun'] = unreviewed_noun
         else:
             if selected_review.rule is None:
-                context['review'] = 'Noun Review'
+                context['review'] = 'Review'
                 context['noun'] = selected_review.noun
             else:
                 #reviewed_nouns = list(GenderReviewScore.objects.filter(user = request.user).values_list('noun', flat=True))
-                context['review'] = 'Rule Review'
+                context['review'] = 'Review'
                 context['rule'] = selected_review.rule
                 noun_index = selected_review.review_count
 
@@ -172,6 +178,7 @@ def gender_quiz_select_question(request, context, nouns):
         """
         if len(nouns) > 0:
             context['noun'] = random.choice(nouns)
+            context['review'] = 'Random Selection'
 
             matches = NounRule.objects.filter(noun = context['noun'], is_match = True).select_related('rule')
             exceptions = NounRule.objects.filter(noun = context['noun'], is_match = False).select_related('rule')

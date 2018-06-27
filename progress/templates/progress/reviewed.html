@@ -5,12 +5,14 @@
     {% block lead-content %}Here is your review history and projections.{% endblock lead-content %}
 
       {% block content %}
-      <div class="container">
+      <div class="my-3 p-3 bg-white rounded box-shadow">
+
+        <h5 class="border-bottom border-gray pb-2 mb-4">Items Reviewed</h5>
 
         <!--{ bar_chart.as_html }}-->
         {% load jchart %}
         {% render_chart 'progress:review_chart' request.user 14 %}
 
-      </div> <!-- /container -->
+      </div> 
       {% endblock content %}
 

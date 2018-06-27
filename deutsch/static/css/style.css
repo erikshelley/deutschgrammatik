@@ -1,11 +1,22 @@
 html {
   font-size: 14px;
 }
+
+body {
+    padding-top: 56px;
+}
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;
   }
 }
+
+.bg-purple { background-color: var(--purple); }
+
+.lh-100 { line-height: 100%; }
+.lh-125 { line-height: 125%; }
+.lh-150 { line-height: 150%; }
 
 .container {
   max-width: 960px;
