@@ -1,23 +1,16 @@
 {% extends "index.html" %}
 
-    {% block lead-title %}Sign In{% endblock lead-title %}
-    {% block lead-content %}Use the form below to change your display name and/or email address.{% endblock lead-content %}
+    {% block lead-title %}Sign Up{% endblock lead-title %}
+    {% block lead-content %}Create an account to begin tracking your progress and using spaced repetition.{% endblock lead-content %}
     {% block lead-subcontent %}{% endblock lead-subcontent %}
 
     {% block content %}
 
 	  <div class="my-3 p-3 bg-white rounded box-shadow">
-        <form class="form-signin" method="post" action="{% url 'login' %}">
+        <form class="form-signin" method="post">
           {% csrf_token %}
-
           {% if form.errors %}
-            <div id="form_error" class="text-danger">Incorrect username and/or password.</div>
-          {% endif %}
-          {% if next %}
-            {% if user.is_authenticated %}
-            <p>Your account doesn't have access to this page. To proceed,
-            please login with an account that has access.</p>
-            {% endif %}
+            <div id="form_error" class="text-danger">There were error(s) with your submission.</div>
           {% endif %}
 
           {% for field in form %}
@@ -36,8 +29,7 @@
               {% if field.html_name == 'username' %} autofocus {% endif %} />
               {% if field.errors %}<div id="{{ field.id_for_label }}_error" class="text-danger">{% for error in field.errors %} {{ error }}{% endfor %}</div>{% endif %}
           {% endfor %}
-          <button id="signin" class="btn btn-lg btn-primary btn-block mt-2" type="submit">Sign In</button>
-          <input type="hidden" name="next" value="{{ next }}" />
+          <button id="signup" class="btn btn-lg btn-primary btn-block mt-2" type="submit">Sign Up</button>
         </form>
       </div>
     {% endblock content %}

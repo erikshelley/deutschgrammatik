@@ -1,10 +1,12 @@
-from django.conf                import settings
-from django.contrib.auth        import login, authenticate
-from django.contrib.auth.forms  import UserCreationForm
-from django.shortcuts           import render, redirect, render_to_response
-from django.template            import RequestContext
-from forms                      import SignUpForm
-from progress.views             import ProgressTracker
+from django.conf                    import settings
+from django.contrib.auth            import login, authenticate, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms      import UserCreationForm, PasswordChangeForm
+from django.shortcuts               import render, redirect, render_to_response
+from django.template                import RequestContext
+from forms                          import SignUpForm, UserChangeForm
+from progress.views                 import ProgressTracker
+
 
 def index(request):
     context = {}
@@ -40,6 +42,7 @@ def index(request):
     context['card_deck'] = [card1, card2, card3]
     return render(request, 'index.html', context)
 
+
 def signup(request):
     if request.method == 'POST':
         #form = UserCreationForm(request.POST)
@@ -54,7 +57,38 @@ def signup(request):
     else:
         #form = UserCreationForm()
         form = SignUpForm()
-    return render(request, 'signup.html', {'form': form, 'page_subtitle': 'Sign Up - '})
+    return render(request, 'accounts/signup.html', {'form': form, 'page_subtitle': 'Sign Up - '})
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+        #    messages.success(request, 'Your password was successfully updated!')
+            return redirect('index')
+        #else:
+        #    messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'accounts/change_password.html', { 'form': form })
+    
+
+@login_required
+def change_profile(request):
+    if request.method == 'POST':
+        form = UserChangeForm(data=request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('index')
+    else:
+        form = UserChangeForm(instance = request.user)
+        context = {}
+        context['form'] = form
+    return render(request, 'accounts/change_profile.html', context)
+
 
 def error_400(request):
     response = render(request, '400.html', {})

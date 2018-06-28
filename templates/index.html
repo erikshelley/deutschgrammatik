@@ -14,6 +14,7 @@
         <div>
           <h4 class="mb-1">{% block lead-title %}Willkommen{% endblock lead-title %}</h4>
           <p class="mb-0 lh-125"><span class="d-block">{% block lead-content %}This site provides German grammar practice for English speakers. Lessons are multiple choice.{% endblock lead-content %}</span>
+          {% block lead-subcontent %}
           {% if user.is_authenticated %}
             <small class="text-white-50">You are signed in as <b>{{ user.get_full_name|default:user.get_username }}</b>.
             {% if next_review %}{{ next_review }}{% endif %}</small>
@@ -22,6 +23,7 @@
             or <a href="{% url 'login' %}?next={{ request.path }}" class="text-warning font-weight-bold">Sign In</a> 
             to track your progress and use spaced repetition.</small>
           {% endif %}
+          {% endblock lead-subcontent %}
           </p>
         </div>
       </div>
@@ -30,7 +32,7 @@
       {% block content %}
 	  <div class="my-3 p-3 bg-white rounded box-shadow">
         <h5 class="border-bottom border-gray pb-2 mb-0">{% block body-title %}Study Topics{% endblock body-title %}</h5>
-        <div class="list-group list-group-flush border-bottom">
+        <div class="list-group list-group-flush border-bottom mb-3">
 		{% for card in card_deck %}
           {% if card.disabled %}<div class="list-group-item text-muted">
           {% else %}<a class="list-group-item list-group-item-action" id="{{ card.button_id }}" href="{% url card.url %}">

@@ -31,11 +31,13 @@
         <div class="dropdown">
           <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" 
             aria-expanded="false">Hello {% if user.get_short_name %}{{ user.get_short_name}}{% else %}{{ user.get_username|default:"Guest" }}{% endif %}</a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
           {% if user.is_authenticated %}
             {% if user.is_staff %}
             <a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
             {% endif %}
+            <a class="dropdown-item" href="{% url 'change_profile' %}">Change Profile</a>
+            <a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a>
             <a class="dropdown-item" href="{% url 'logout' %}?next={{ request.path }}">Sign Out</a>
           {% else %}
             <a class="dropdown-item" href="{% url 'signup' %}">Sign Up</a>

@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
@@ -13,12 +13,8 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', )
 
-    #def clean_username(self):
-    #    print 'Here'
-    #    username = self.cleaned_data['username']
-    #    print username
-    #    user_exists = User.objects.filter(username=username).exists()
-    #    #user_exists = User.objects.get(username=username)
-    #    print user_exists
-    #    if user_exists:
-    #        raise ValidationError("User exists")
+class UserChangeForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+
