@@ -9,71 +9,43 @@
 
         {% if noun %}
           <h5 id="list-title-list" class="mb-1">{{ noun.noun }} <span class="small text-muted">({{ review }})</span></h5>
-          <ul class="fa-ul ml-4"><li class="text-info small"><span class="fa-li fa fa-info-circle fa-lg"></span> {{ noun.english }}</li></ul>
+          <ul class="fa-ul ml-4"><li class="text-info small"><span class="fa-li fa fa-info-circle"></span> Translation: {{ noun.english }}</li></ul>
           <div class="list-group list-group-flush border-top border-bottom mb-3" id="list-tab">
 			<a class="list-group-item list-group-item-action" data-toggle="collapse" id="der-tab" href=".der" aria-expanded="false" aria-controls="dict der">
-              <div class="row text-left">
+              <div class="row text-left align-items-center">
                 <div class="col-0"><span class="far fa-circle  fa-lg text-primary mr-2"></span></div>
                 <div class="col">Der {{ noun.noun }}</div>
               </div>
             </a>
 			<a class="list-group-item list-group-item-action" data-toggle="collapse" id="das-tab" href=".das" aria-expanded="false" aria-controls="dict das">
-              <div class="row text-left">
-                <div class="col-0"><span class="far fa-circle  fa-lg text-primary mr-2" style="vertical-align: middle;"></span></div>
+              <div class="row text-left align-items-center">
+                <div class="col-0"><span class="far fa-circle  fa-lg text-primary mr-2"></span></div>
                 <div class="col">Das {{ noun.noun }}</div>
               </div>
             </a>
 			<a class="list-group-item list-group-item-action" data-toggle="collapse" id="die-tab" href=".die" aria-expanded="false" aria-controls="dict die">
-              <div class="row text-left">
-                <div class="col-0"><span class="far fa-circle  fa-lg text-primary mr-2" style="vertical-align: middle;"></span></div>
+              <div class="row text-left align-items-center">
+                <div class="col-0"><span class="far fa-circle  fa-lg text-primary mr-2"></span></div>
                 <div class="col">Die {{ noun.noun }}</div>
               </div>
             </a>
 		  </div>
 
 		  <div class="collapse multi-collapse der" id="der">
-		    <div class="row text-center">
-		      <div class="col-sm">
-                <div class="card border-0">
-			      <div class="card-body">
-                    {% if noun.gender == 'M' %}{% include 'deklination/correct.html' %}{% else %}{% include 'deklination/incorrect.html' %}{% endif %}
-				  </div>
-                </div>
-			  </div>
-			</div>
+            {% if noun.gender == 'M' %}{% include 'deklination/correct.html' %}{% else %}{% include 'deklination/incorrect.html' %}{% endif %}
           </div>
 		  <div class="collapse multi-collapse das" id="das">
-		    <div class="row text-center">
-		      <div class="col-sm">
-                <div class="card border-0">
-			      <div class="card-body" id="das-card">
-                    {% if noun.gender == 'N' %}{% include 'deklination/correct.html' %}{% else %}{% include 'deklination/incorrect.html' %}{% endif %}
-				  </div>
-                </div>
-			  </div>
-			</div>
+            {% if noun.gender == 'N' %}{% include 'deklination/correct.html' %}{% else %}{% include 'deklination/incorrect.html' %}{% endif %}
           </div>
 		  <div class="collapse multi-collapse die" id="die">
-		    <div class="row text-center">
-		      <div class="col-sm">
-                <div class="card border-0">
-			      <div class="card-body" id="die-card">
-                    {% if noun.gender == 'F' %}{% include 'deklination/correct.html' %}{% else %}{% include 'deklination/incorrect.html' %}{% endif %}
-				  </div>
-                </div>
-			  </div>
-			</div>
+            {% if noun.gender == 'F' %}{% include 'deklination/correct.html' %}{% else %}{% include 'deklination/incorrect.html' %}{% endif %}
           </div>
 
 		  <div class="collapse multi-collapse mt-2 der das die dict" id="dict">
-		    <div class="row">
-		      <div class="col-sm">
-			    <div id="definition-card" class="card card-body pt-0 border-0 text-center">
-                  <a id="definition-toggle" href="#">Show Dictionary Entry</a>
-                  <div class="embed-responsive embed-responsive-1by1" id="definition-embed" style="display: none;">
-                    <iframe class="embed-responsive-item" id="definition-frame" src=""></iframe>
-                  </div>
-				</div>
+			<div id="definition-card" class="card card-body pt-0 border-0 text-center">
+              <a id="definition-toggle" href="#">Show Dictionary Entry</a>
+              <div class="embed-responsive embed-responsive-1by1" id="definition-embed" style="display: none;">
+                <iframe class="embed-responsive-item" id="definition-frame" src=""></iframe>
 			  </div>
 			</div>
 		  </div>

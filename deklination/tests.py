@@ -169,7 +169,7 @@ class TestDeklinationActions:
 
     def get_noun(self):
         noun_text = self.selenium.find_element_by_xpath('//a[@id="der-tab"]/div/div[2]').get_attribute('innerHTML').replace("Der ","")
-        gender_text = self.selenium.find_element_by_xpath('//div[h2[@class="text-success"]]/ul/li/strong').get_attribute('innerHTML').replace(" " + noun_text,"")
+        gender_text = self.selenium.find_element_by_xpath('//div[h5[@class="text-success"]]/ul/li/strong').get_attribute('innerHTML').replace(" " + noun_text,"")
         if gender_text == 'Der':
             gender = 'M'
         elif gender_text == 'Das':
@@ -222,23 +222,23 @@ class TestDeklinationActions:
     def verify_guest_correct_answer_elements(self):
         base_xpath = '//div[@id="' + self.get_article() + '"]'
         assert "show" in self.selenium.find_element_by_xpath(base_xpath).get_attribute('class')
-        assert "Correct!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').get_attribute('innerHTML')
+        assert "Correct!" in self.selenium.find_element_by_xpath(base_xpath + '//h5').get_attribute('innerHTML')
         assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//li').get_attribute('innerHTML')
         assert "Next Question" in self.selenium.find_element_by_xpath(base_xpath + '//a[@role="button"]').get_attribute('innerHTML')
 
     def verify_guest_incorrect_answer_elements(self):
         base_xpath = '//div[@id="' + self.get_incorrect_article() + '"]'
         assert "show" in self.selenium.find_element_by_xpath(base_xpath).get_attribute('class')
-        assert "Incorrect!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').get_attribute('innerHTML')
+        assert "Incorrect!" in self.selenium.find_element_by_xpath(base_xpath + '//h5').get_attribute('innerHTML')
         assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//li').get_attribute('innerHTML')
         assert "Next Question" in self.selenium.find_element_by_xpath(base_xpath + '//a[@role="button"]').get_attribute('innerHTML')
 
     def verify_authorized_correct_answer_elements(self):
         base_xpath = '//div[@id="' + self.get_article() + '"]'
         assert "show" in self.selenium.find_element_by_xpath(base_xpath).get_attribute('class')
-        assert "Correct!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').get_attribute('innerHTML')
+        assert "Correct!" in self.selenium.find_element_by_xpath(base_xpath + '//h5').get_attribute('innerHTML')
         #assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').get_attribute('innerHTML')
-        assert "How hard was that?" in self.selenium.find_element_by_xpath(base_xpath + '//p').get_attribute('innerHTML')
+        assert "How hard was that?" in self.selenium.find_element_by_xpath(base_xpath + '//h6').get_attribute('innerHTML')
         assert self.noun.noun in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="noun"]').get_attribute('value')
         assert self.noun.english in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="english"]').get_attribute('value')
         assert "Difficult" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="3"]').get_attribute('innerHTML')
@@ -248,9 +248,9 @@ class TestDeklinationActions:
     def verify_authorized_incorrect_answer_elements(self):
         base_xpath = '//div[@id="' + self.get_incorrect_article() + '"]'
         assert "show" in self.selenium.find_element_by_xpath(base_xpath).get_attribute('class')
-        assert "Incorrect!" in self.selenium.find_element_by_xpath(base_xpath + '//h2').get_attribute('innerHTML')
+        assert "Incorrect!" in self.selenium.find_element_by_xpath(base_xpath + '//h5').get_attribute('innerHTML')
         #assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').get_attribute('innerHTML')
-        assert "Do you know this now?" in self.selenium.find_element_by_xpath(base_xpath + '//p').get_attribute('innerHTML')
+        assert "Do you know this now?" in self.selenium.find_element_by_xpath(base_xpath + '//h6').get_attribute('innerHTML')
         assert self.noun.noun in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="noun"]').get_attribute('value')
         assert self.noun.english in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="english"]').get_attribute('value')
         assert "Not Really" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="0"]').get_attribute('innerHTML')

@@ -1,5 +1,5 @@
-                    <h2 class="text-danger">Incorrect!</h2>
-                      <ul class="text-left">
+                    <h5 class="text-danger">Incorrect!</h5>
+                      <ul class="small px-3">
                         <li>The gender is {{ gender }} : <strong>{{ article }} {{ noun.noun}}</strong></li>
                         {% if rule %}
                           <li>This is an example of the rule <code class="text-success">{{ rule.long_name }}</code>, which works {{ rule.pretty_percent }} of the time.</li>
@@ -19,16 +19,18 @@
                         {% endif %}{% endif %}{% endif %}
                       </ul>
                     {% if user.is_authenticated %}
-                      <p><strong>Do you know this now?</strong></p>
                       <form action="{% url 'deklination:gender_quiz' %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="noun" value="{{ noun.noun }}" />
                         {% if rule %}<input type="hidden" name="rule" value="{{ rule.short_name }}" />{% endif %}
                         <input type="hidden" name="english" value="{{ noun.english }}" />
                         <div class="row">
-                          <div class="col-sm my-1"><button class="btn btn-md btn-block btn-primary" type="submit" name="quality" value="0">Not Really</button></div>
-                          <div class="col-sm my-1"><button class="btn btn-md btn-block btn-primary" type="submit" name="quality" value="1">Maybe</button></div>
-                          <div class="col-sm my-1"><button class="btn btn-md btn-block btn-primary" type="submit" name="quality" value="2">Definitely</button></div>
+                          <div class="col pt-2 border-top border-gray text-center"><h6>Do you know this now?</h6></div>
+                        </div>
+                        <div class="row mx-0">
+                          <div class="col px-1"><button class="btn btn-md btn-block btn-success" type="submit" name="quality" value="2">Definitely</button></div>
+                          <div class="col px-1"><button class="btn btn-md btn-block btn-warning" type="submit" name="quality" value="1">Maybe</button></div>
+                          <div class="col px-1"><button class="btn btn-md btn-block btn-danger" type="submit" name="quality" value="0">Not Really</button></div>
                         </div>
                       </form>
                     {% else %}
