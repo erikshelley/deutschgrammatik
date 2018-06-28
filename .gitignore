@@ -22,13 +22,18 @@ db_imports/
 # virtual environment for required packages
 env/
 
-# server-only files
+# server-only files (use these commands to move /deutsch/static/ files into /static/)
 # > source env/bin/activate
 # > python manage.py collectstatic
 # > deactivate
 dispatch.fcgi
 .htaccess
-static/
+/static/
+
+# ignoring font awesome, uploaded to server /static/ manually
+/deutsch/static/*
+!/deutsch/static/images/
+!/deutsch/static/css/
 
 # cleaning up migrations:
 #   python manage.py makemigrations
