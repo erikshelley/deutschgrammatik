@@ -8,7 +8,14 @@
       <div class="my-3 p-3 bg-white rounded box-shadow">
 
         {% if noun %}
-          <h5 id="list-title-list" class="mb-1">{{ noun.noun }} <span class="small text-muted">({{ review }})</span></h5>
+          <div class="row align-items-center">
+            <div class="col">
+              <h4 id="list-title-list" class="mb-1">{{ noun.noun }}</h4>
+            </div>
+            <div class="col text-right">
+              <span class="small text-warning font-bold font-italic">{{ review }}</span>
+            </div>
+          </div>
           <ul class="fa-ul ml-4"><li class="text-info small"><span class="fa-li fa fa-info-circle"></span> Translation: {{ noun.english }}</li></ul>
           <div class="list-group list-group-flush border-top border-bottom mb-3" id="list-tab">
 			<a class="list-group-item list-group-item-action" data-toggle="collapse" id="der-tab" href=".der" aria-expanded="false" aria-controls="dict der">
@@ -56,6 +63,8 @@
 
       </div> <!-- /container -->
       {% endblock content %}
+
+      {% block extra-content %}{% endblock extra-content %}
 
     {% block scripts %}
     <script>

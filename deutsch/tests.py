@@ -137,9 +137,9 @@ class TestHomePage_Guest(TestCase):
         resp = self.client.get('/', follow=True)
         assert 'Sign Up' in resp.content
         assert 'Sign In' in resp.content
-        assert 'Deklination</strong>' in resp.content
-        assert 'Konjugation</strong>' in resp.content
-        assert 'Wortstellung</strong>' in resp.content
+        assert 'Deklination</h5>' in resp.content
+        assert 'Konjugation</h5>' in resp.content
+        assert 'Wortstellung</h5>' in resp.content
         expected_regex = re.compile(r'<nav .+?Hello Guest.+?Sign Up.+?</nav>', re.MULTILINE|re.DOTALL)
         unittest.TestCase.assertRegexpMatches(self, resp.content, expected_regex)
 
@@ -154,9 +154,9 @@ class TestHomePage_Authorized(TestCase):
         resp = self.client.get('/', follow=True)
         assert 'Sign Up' not in resp.content
         assert 'Sign In' not in resp.content
-        assert 'Deklination</strong>' in resp.content
-        assert 'Konjugation</strong>' in resp.content
-        assert 'Wortstellung</strong>' in resp.content
+        assert 'Deklination</h5>' in resp.content
+        assert 'Konjugation</h5>' in resp.content
+        assert 'Wortstellung</h5>' in resp.content
         expected_regex = re.compile(r'<nav .+?Hello First.+?Sign Out.+?</nav>', re.MULTILINE|re.DOTALL)
         unittest.TestCase.assertRegexpMatches(self, resp.content, expected_regex)
 

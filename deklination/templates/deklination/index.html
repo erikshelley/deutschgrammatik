@@ -4,3 +4,34 @@
     {% block lead-content %}This set of exercises allows you to practice your ability to correctly apply declination.{% endblock lead-content %}
     {% block body-title %}Quizzes{% endblock body-title %}
 
+      {% block extra-content %}
+	  <div class="my-3 p-3 bg-white rounded box-shadow">
+        <h4 class="border-bottom border-gray pb-3">Gender Rules</h4>
+        <p>
+        Taking the <a href="{% url 'deklination:gender_quiz' %}">Identify Gender</a> quiz will teach you the 44 rules below to help you identify noun genders.
+        These rules will help you identify the gender for nearly 3,000 of the 5,000 most commonly used German nouns.
+        The other 2,000 nouns are either exceptions to a rule or are not covered by one of these rules so they must be learned individually.
+        </p>
+        <p>
+        Only rules that apply to at least 10 of the top 5,000 nouns and are correct at least 60% of the time are included.
+        Most of the rules are not correct 100% of the time so the actual percentage correct for the top 5,000 nouns is shown in the table.
+        The rules are sorted so that the most helpful come first.
+        Helpfulness is a combination of how many nouns the rule applies to, how commonly used those nouns are, and how often the rule is correct.
+        </p>
+        <div class="list-group list-group-flush border-bottom mb-3 mx-3">
+          <div class="row text-left font-weight-bold border-bottom align-items-center mt-2">
+            <div class="col-0">#</div>
+            <div class="col lh-125">Rule</div>
+            <div class="col text-right px-0">% Correct</div>
+          </div>
+		  {% for rule in rules %}
+          <div class="row text-left align-items-center mt-1 {% if forloop.counter|divisibleby:2 %} bg-light{% endif %}">
+            <!--<div class="col-0"><span class="fa fa-check text-success"></span></div>-->
+            <div class="col-0">{{ forloop.counter }}</div>
+            <div class="col lh-125">{{ rule.long_name }}</div>
+            <div class="col-0 text-right">{{ rule.pretty_percent }}</div>
+          </div>
+		  {% endfor %}
+        </div>
+      </div>
+      {% endblock extra-content %}

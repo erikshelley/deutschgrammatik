@@ -12,14 +12,15 @@
       {% block lead %}
 	  <div class="d-flex align-items-center p-3 my-3 text-white bg-purple rounded box-shadow">
         <div>
-          <h4 class="mb-1">{% block lead-title %}Willkommen{% endblock lead-title %}</h4>
-          <p class="mb-0 lh-125"><span class="d-block">{% block lead-content %}This site provides German grammar practice for English speakers. Lessons are multiple choice.{% endblock lead-content %}</span>
-          {% block lead-subcontent %}
-          {% if user.is_authenticated %}
-            <small class="text-white-50">You are signed in as <b>{{ user.get_full_name|default:user.get_username }}</b>.
-            {% if next_review %}{{ next_review }}{% endif %}</small>
-          {% else %}
-            <small class="text-white-50"><a href="{% url 'signup' %}" class="text-warning font-weight-bold">Sign Up</a>
+          <h3 class="mb-1">{% block lead-title %}Willkommen{% endblock lead-title %}</h3>
+          <p class="mb-0 lh-100">
+            <span class="d-block lh-125">{% block lead-content %}This site provides German grammar practice for English speakers. Lessons are multiple choice.{% endblock lead-content %}</span>
+            {% block lead-subcontent %}
+            {% if user.is_authenticated %}
+              <small class="lh-100 text-white-50">You are signed in as <b>{{ user.get_full_name|default:user.get_username }}</b>.
+              {% if next_review %}{{ next_review }}{% endif %}</small>
+            {% else %}
+            <small class="lh-100 text-white-50"><a href="{% url 'signup' %}" class="text-warning font-weight-bold">Sign Up</a>
             or <a href="{% url 'login' %}?next={{ request.path }}" class="text-warning font-weight-bold">Sign In</a> 
             to track your progress and use spaced repetition.</small>
           {% endif %}
@@ -31,7 +32,7 @@
 
       {% block content %}
 	  <div class="my-3 p-3 bg-white rounded box-shadow">
-        <h5 class="border-bottom border-gray pb-2 mb-0">{% block body-title %}Study Topics{% endblock body-title %}</h5>
+        <h4 class="pb-2">{% block body-title %}Study Topics{% endblock body-title %}</h4>
         <div class="list-group list-group-flush border-bottom mb-3">
 		{% for card in card_deck %}
           {% if card.disabled %}<div class="list-group-item text-muted">
@@ -42,8 +43,8 @@
                 <span class="fa fa-{{ card.icon }} fa-lg {% if not card.disabled %}text-primary{% endif %}"></span>
               </div>
               <div class="col lh-125">
-                <strong class="d-block text-muted">{{ card.title }}</strong>
-                <span class="small">{% autoescape off %}{{ card.text }}{% endautoescape %}</span>
+                <h5>{{ card.title }}</h5>
+                <span>{% autoescape off %}{{ card.text }}{% endautoescape %}</span>
               </div>
               <div class="col-0">
                 {% if card.reviews_due %}<span class="badge badge-primary badge-pill">{{ card.reviews_due }}</span>{% else %}<span></span>{% endif %}
@@ -52,7 +53,11 @@
           {% if card.disabled %}</div>{% else %}</a>{% endif %}
 		{% endfor %}
         </div>
+      </div>
       {% endblock content %}
+
+      {% block extra-content %}
+      {% endblock extra-content %}
 
     </main>
 

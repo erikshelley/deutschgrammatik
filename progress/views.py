@@ -52,6 +52,7 @@ def reviewed(request):
     context = {}
     context['page_subtitle'] = 'Items Reviewed - Progress - '
     progress = ProgressTracker()
+    context['next_review'] = progress.get_next_review(request.user)
     context['dek_reviews'] = progress.get_review_count(request.user, 'DG')
     #if request.method == POST:
     #    quality = int(request.POST['quality'])
@@ -63,6 +64,7 @@ def learned(request):
     context = {}
     context['page_subtitle'] = 'Items Learned - Progress - '
     progress = ProgressTracker()
+    context['next_review'] = progress.get_next_review(request.user)
     context['dek_reviews'] = progress.get_review_count(request.user, 'DG')
     return render(request, 'progress/learned.html', context)
 
@@ -159,7 +161,8 @@ def daterange(start_date, end_date):
 
 class ReviewChart(Chart):
     chart_type = 'bar'
-    title = Title(display = True, text = 'Deklension : Gender', fontSize = 16)
+    title = Title(display = True, text = 'Declension : Gender', fontSize = 16)
+    #options = { 'maintainAspectRatio': False }
     legend = { 'display': True, 'position': 'bottom' }
     scales = { 'xAxes': [{ 'stacked': True }], 
                'yAxes': [{ 'stacked': True,
@@ -262,7 +265,7 @@ review_chart = ReviewChart()
 
 class LearnedChart(Chart):
     chart_type = 'bar'
-    title = Title(display = True, text = 'Deklension : Gender', fontSize = 16)
+    title = Title(display = True, text = 'Declension : Gender', fontSize = 16)
     legend = { 'display': True, 'position': 'bottom' }
     scales = { 'xAxes': [{ 'stacked': True }], 
                'yAxes': [{ 'stacked': True,
@@ -333,9 +336,9 @@ class LearnedChart(Chart):
         short_rgb = 'rgba(' + ','.join(map(str, tuple(int(short_hex[i:i+2], 16) for i in (0, 2 ,4))))
         long_rgb  = 'rgba(' + ','.join(map(str, tuple(int( long_hex[i:i+2], 16) for i in (0, 2 ,4))))
         return [
-                DataSet(label='New  ', data=new_data,   borderWidth=1, borderColor=new_rgb+',1.0)',   backgroundColor=new_rgb+',0.5)'),
-                DataSet(label='Short', data=short_data, borderWidth=1, borderColor=short_rgb+',1.0)', backgroundColor=short_rgb+',0.5)'),
                 DataSet(label='Long ', data=long_data,  borderWidth=1, borderColor=long_rgb+',1.0)',  backgroundColor=long_rgb+',0.5)'),
+                DataSet(label='Short', data=short_data, borderWidth=1, borderColor=short_rgb+',1.0)', backgroundColor=short_rgb+',0.5)'),
+                DataSet(label='New  ', data=new_data,   borderWidth=1, borderColor=new_rgb+',1.0)',   backgroundColor=new_rgb+',0.5)'),
                 ]
 
 learned_chart = LearnedChart()

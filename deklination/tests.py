@@ -39,9 +39,9 @@ def check_authorized_items(self, resp):
 
 class TestDeklination(TestCase):
     def check_quiz_options(self, resp):
-        assert "Identify Gender</strong>" in resp.content
-        assert "Identify Case</strong>" in resp.content
-        assert "Identify Declension</strong>" in resp.content
+        assert "Identify Gender</h5>" in resp.content
+        assert "Identify Case</h5>" in resp.content
+        assert "Identify Declension</h5>" in resp.content
 
     def test_deklination_guest(self):
         print '\nTest: Deklination Guest'
@@ -206,7 +206,7 @@ class TestDeklinationActions:
         
     def verify_question_elements(self):
         self.get_noun()
-        assert self.noun.noun in self.selenium.find_element_by_xpath('//h5[@id="list-title-list"]').get_attribute('innerHTML')
+        assert self.noun.noun in self.selenium.find_element_by_xpath('//h4[@id="list-title-list"]').get_attribute('innerHTML')
         assert "Der " in self.selenium.find_element_by_xpath('//a[@id="der-tab"]').get_attribute('innerHTML')
         assert "Das " in self.selenium.find_element_by_xpath('//a[@id="das-tab"]').get_attribute('innerHTML')
         assert "Die " in self.selenium.find_element_by_xpath('//a[@id="die-tab"]').get_attribute('innerHTML')
@@ -238,7 +238,7 @@ class TestDeklinationActions:
         assert "show" in self.selenium.find_element_by_xpath(base_xpath).get_attribute('class')
         assert "Correct!" in self.selenium.find_element_by_xpath(base_xpath + '//h5').get_attribute('innerHTML')
         #assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').get_attribute('innerHTML')
-        assert "How hard was that?" in self.selenium.find_element_by_xpath(base_xpath + '//h6').get_attribute('innerHTML')
+        assert "How hard was that?" in self.selenium.find_element_by_xpath(base_xpath + '//form//h5').get_attribute('innerHTML')
         assert self.noun.noun in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="noun"]').get_attribute('value')
         assert self.noun.english in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="english"]').get_attribute('value')
         assert "Difficult" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="3"]').get_attribute('innerHTML')
@@ -250,7 +250,7 @@ class TestDeklinationActions:
         assert "show" in self.selenium.find_element_by_xpath(base_xpath).get_attribute('class')
         assert "Incorrect!" in self.selenium.find_element_by_xpath(base_xpath + '//h5').get_attribute('innerHTML')
         #assert self.get_article().title() + " " + self.noun.noun.replace("|"," | ") in self.selenium.find_element_by_xpath(base_xpath + '//p').get_attribute('innerHTML')
-        assert "Do you know this now?" in self.selenium.find_element_by_xpath(base_xpath + '//h6').get_attribute('innerHTML')
+        assert "Do you know this now?" in self.selenium.find_element_by_xpath(base_xpath + '//form//h5').get_attribute('innerHTML')
         assert self.noun.noun in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="noun"]').get_attribute('value')
         assert self.noun.english in self.selenium.find_element_by_xpath(base_xpath + '//form/input[@name="english"]').get_attribute('value')
         assert "Not Really" in self.selenium.find_element_by_xpath(base_xpath + '//form//button[@value="0"]').get_attribute('innerHTML')

@@ -48,6 +48,8 @@ def index(request):
         context['dek_reviews'] = progress.get_review_count(request.user, 'DG')
         card1['reviews_due'] = progress.get_review_count(request.user, 'DG')
     context['card_deck'] = [card1, card2, card3]
+    rules = Rule.objects.all()
+    context['rules'] = rules
     return render(request, 'deklination/index.html', context)
     
 
