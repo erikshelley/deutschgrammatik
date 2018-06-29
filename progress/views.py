@@ -148,7 +148,10 @@ class ProgressTracker:
                 else:
                     return "You have " + str(overdue) + " item due for review. "
             else:
-                return "Your next item is due for review on " + timezone.localtime(next_review_due).strftime("%b %e, %Y at %r") + ". "
+                if local_time.date() == timezone.localtime(next_review_due).date():
+                    return "Your next item is due for review at " + timezone.localtime(next_review_due).strftime("%r") + ". "
+                else:
+                    return "Your next item is due for review on " + timezone.localtime(next_review_due).strftime("%b %e, %Y at %r") + ". "
         else:
             return ""
 

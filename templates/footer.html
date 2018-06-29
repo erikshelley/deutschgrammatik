@@ -2,13 +2,13 @@
     {% block footer-content %}
 
     <div class="push"></div>
-    <footer class="footer text-muted text-center">
+    <footer class="footer invisible text-muted text-center">
       <hr />
       <p class="mb-1">&copy; 2018 Erik Shelley</p>
       <ul class="list-inline">
         <li class="list-inline-item"><a href="https://github.com/erikshelley/deutschgrammatik/blob/master/README.md">About</a></li>
-        <li class="list-inline-item"><a href="#">Privacy</a></li>
-        <li class="list-inline-item"><a href="#">Terms</a></li>
+        <li class="list-inline-item">Privacy</li>
+        <li class="list-inline-item">Terms</li>
         <li class="list-inline-item"><a href="https://github.com/erikshelley/deutschgrammatik/issues">Issues</a></li>
       </ul>
     </footer>
@@ -28,22 +28,36 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.min.js"></script>
 
     <script>
+
     $( document ).ready(function() {
-      $('.input-select').select()
+      $('.input-select').select();
       reposition_footer();
     });
+
+	/*$(window).on('resize', function(e) {
+  	  clearTimeout(resizeTimer);
+  	  resizeTimer = setTimeout(function() {
+		reposition_footer();
+  	  }, 250);
+	});*/
 
     $( window ).resize(function() {
         reposition_footer();
     });
 
+	var resizeTimer;
+
     function reposition_footer() {
-      $footer = $('footer');
-      footerHeight = $footer.height();
-      if ( ($(document.body).height() + footerHeight) < $(window).height()) {
-        $footer.css({ position: "absolute" });
-      } else {
-        $footer.css({ position: "static" });
-      }
+  	  clearTimeout(resizeTimer);
+  	  resizeTimer = setTimeout(function() {
+        $footer = $('footer');
+        footerHeight = $footer.height();
+        if ( ($(document.body).height() + footerHeight) < $(window).height()) {
+          $footer.css({ position: "absolute" });
+        } else {
+          $footer.css({ position: "static" });
+        }
+        $('footer').removeClass('invisible');
+  	  }, 100);
     }
     </script>

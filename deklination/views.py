@@ -249,7 +249,7 @@ def gender_quiz_record_response(request):
             gender_srs.status = 'S'
             new_delta = -1
             short_delta = 1
-    if gender_srs.interval >= 21:
+    if gender_srs.interval >= 28:
         gender_srs.status = 'L'
         short_delta = -1
         long_delta = 1

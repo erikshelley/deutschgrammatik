@@ -4,15 +4,34 @@
     {% block lead-title %}<a class="text-white" href="{% url 'progress:index' %}">Progress</a> &raquo; Items Learned{% endblock lead-title %}
     {% block lead-content %}Here is the history of what you have learned.{% endblock lead-content %}
 
-      {% block content %}
-      <div class="my-3 p-3 bg-white rounded box-shadow">
+    {% block content %}
+    <div class="my-3 p-3 bg-white rounded box-shadow">
 
-        <h4 class="border-bottom border-gray pb-3 mb-4">Items Learned</h4>
+      <h4 class="border-bottom border-gray pb-3 mb-4">Items Learned</h4>
 
-        <!--{ bar_chart.as_html }}-->
-        {% load jchart %}
-        {% render_chart 'progress:learned_chart' request.user 14 %}
+      <!--{ bar_chart.as_html }}-->
+      {% load jchart %}
+      {% render_chart 'progress:learned_chart' request.user 14 %}
 
-      </div> <!-- /container -->
-      {% endblock content %}
+    </div> <!-- /container -->
+    {% endblock content %}
+
+    {% block extra-content %}
+	<div class="my-3 p-3 bg-white rounded box-shadow">
+      <h4 class="pb-2 border-bottom border-gray">Explanation</h4>
+      <p>
+      The totals on this chart are for the number of items you have learned.
+      </p>
+      <div class="row">
+        <div class="col-2"><b>New</b></div><div class="col">The number of items whose interval between reviews has not yet exceeded 14 days.</div>
+      </div>
+      <div class="row">
+        <div class="col-2"><b>Short</b></div><div class="col">The number of items whose interval between reviews has exceeded 14 days but never 21 days.</div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-2"><b>Long</b></div><div class="col">The number of items whose interval between reviews is greater than 21 days.</div>
+      </div>
+      <p>An unsuccessful review will not move an item from <b>short</b> to <b>new</b> but it can move an item from <b>long</b> to <b>short</b>.</p>
+    </div>
+    {% endblock extra-content %}
 

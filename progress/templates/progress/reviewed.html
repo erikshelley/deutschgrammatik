@@ -4,15 +4,34 @@
     {% block lead-title %}<a class="text-white" href="{% url 'progress:index' %}">Progress</a> &raquo; Items Reviewed{% endblock lead-title %}
     {% block lead-content %}Here is your review history and projections.{% endblock lead-content %}
 
-      {% block content %}
-      <div class="my-3 p-3 bg-white rounded box-shadow">
+    {% block content %}
+    <div class="my-3 p-3 bg-white rounded box-shadow">
 
-        <h4 class="border-bottom border-gray pb-3 mb-4">Items Reviewed</h4>
+      <h4 class="border-bottom border-gray pb-3 mb-4">Items Reviewed</h4>
 
-        <!--{ bar_chart.as_html }}-->
-        {% load jchart %}
-        {% render_chart 'progress:review_chart' request.user 14 %}
+      <!--{ bar_chart.as_html }}-->
+      {% load jchart %}
+      {% render_chart 'progress:review_chart' request.user 14 %}
 
-      </div> 
-      {% endblock content %}
+    </div> 
+    {% endblock content %}
+
+    {% block extra-content %}
+	<div class="my-3 p-3 bg-white rounded box-shadow">
+      <h4 class="pb-2 border-bottom border-gray">Explanation</h4>
+      <p>
+      The totals on this chart are for the number of items reviewed, not the number of reviews.
+      If you review an item multiple times in one day it will only count as one review in the chart.
+      </p>
+      <div class="row">
+        <div class="col-2"><b>New</b></div><div class="col">The number of items you reviewed that you have not yet answered correctly.</div>
+      </div>
+      <div class="row">
+        <div class="col-2"><b>Review</b></div><div class="col">The number of items you reviewed that you have previously answered correctly.</div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-2"><b>Due</b></div><div class="col">The number of items due for review in the future.</div>
+      </div>
+    </div>
+    {% endblock extra-content %}
 

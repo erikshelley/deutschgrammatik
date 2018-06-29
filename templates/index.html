@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -43,7 +44,7 @@
                 <span class="fa fa-{{ card.icon }} fa-lg {% if not card.disabled %}text-primary{% endif %}"></span>
               </div>
               <div class="col lh-125">
-                <h5>{{ card.title }}</h5>
+                <h5{% if not card.disabled %} class="text-primary"{% endif %}>{{ card.title }}</h5>
                 <span>{% autoescape off %}{{ card.text }}{% endautoescape %}</span>
               </div>
               <div class="col-0">
@@ -57,6 +58,29 @@
       {% endblock content %}
 
       {% block extra-content %}
+	  <div class="my-3 p-3 bg-white rounded box-shadow">
+        <h4 class="pb-2 border-bottom border-gray">Spaced Repetition</h4>
+        <p>
+        Spaced repetition is an effective way to commit a newly learned piece of knowledge to long term memory.
+        Each time you successfully remember something during a review you can wait even longer before the next review.
+        If you forget something during a review the delays start over and then they increase at a slower pace for that item.
+        </p>
+        <p>
+        The chart below shows a hypothetical example of something being reviewed successfully on day 1, day 4, and day 13. 
+        Notice that the delays between reviews grow longer.
+        </p>
+        <div class="text-center pb-3">
+          <img alt="Spaced Repetition" class="img-fluid border box-shadow" src="{% static 'images/spaced_repetition.png' %}?v=20180628" />
+        </div>
+        <p>
+        This site uses spaced repetition to help you learn German grammar.
+        Each time you answer a question you will be asked to rate your performance so that the spacing between reviews can be adjusted.
+        For learning simple items like the gender of a noun the process will be familiar to anyone who has used spaced repetition software before.
+        For learning rules like that all nouns ending in -keit are feminine the process is slightly different.
+        Each time you review the rule you will be presented with a different example, that way you don't just memorize any particular example.
+        The goal is for you to memorize the rule.
+        </p>
+      </div>
       {% endblock extra-content %}
 
     </main>
