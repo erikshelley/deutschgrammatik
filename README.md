@@ -35,32 +35,32 @@ card for a given rule each time it is seen while keeping the content applicable 
 
 <details>
   <summary>Guest User</summary>
-  [![Home Page](guest-homepage_thumb.png)](screenshots/guest-homepage.png)
-  [![Deklination](guest-deklination_thumb.png)](screenshots/guest-deklination.png)
-  [![Gender Quiz Question](guest-genderquiz-question_thumb.png)](screenshots/guest-genderquiz-question.png)
-  [![Gender Quiz Answer](guest-genderquiz-answer_thumb.png)](screenshots/guest-genderquiz-answer.png)
-  [![Gender Quiz Dictionary](guest-genderquiz-dictionary_thumb.png)](screenshots/guest-genderquiz-dictionary.png)
+  <a href="screenshots/guest-homepage.png"><img alt="Home Page" src="screenshots/guest-homepage_thumb.png"></a>
+  <a href="screenshots/guest-deklination.png"><img alt="Deklination" src="screenshots/guest-deklination_thumb.png"></a>
+  <a href="screenshots/guest-genderquiz-question.png"><img alt="Gender Quiz Question" src="screenshots/guest-genderquiz-question_thumb.png"></a>
+  <a href="screenshots/guest-genderquiz-answer.png"><img alt="Gender Quiz Answer" src="screenshots/guest-genderquiz-answer_thumb.png"></a>
+  <a href="screenshots/guest-genderquiz-dictionary.png"><img alt="Gender Quiz Dictionary" src="screenshots/guest-genderquiz-dictionary_thumb.png"></a>
 </details>
 
 <details>
   <summary>Authorized User</summary>
-  [![Home Page Reviews Due](user-homepage_thumb.png)](screenshots/user-homepage.png)
-  [![Home Page Next Review](user-homepage-nextreviewdue_thumb.png)](screenshots/user-homepage-nextreviewdue.png)
-  [![Deklination](user-deklination_thumb.png)](screenshots/user-deklination.png)
-  [![Gender Quiz Question](user-genderquiz-question_thumb.png)](screenshots/user-genderquiz-question.png)
-  [![Gender Quiz Correct Answer](user-genderquiz-answer-correct_thumb.png)](screenshots/user-genderquiz-answer-correct.png)
-  [![Gender Quiz Incorrect Answer](user-genderquiz-answer-incorrect_thumb.png)](screenshots/user-genderquiz-answer-incorrect.png)
-  [![Gender Quiz Exception Answer](user-genderquiz-answer-exception_thumb.png)](screenshots/user-genderquiz-answer-exception.png)
-  [![Gender Quiz NoRule Answer](user-genderquiz-answer-norule_thumb.png)](screenshots/user-genderquiz-answer-norule.png)
-  [![Progress](user-progress_thumb.png)](screenshots/user-progress.png)
-  [![Progress](user-progress-reviewed_thumb.png)](screenshots/user-progress-reviewed.png)
-  [![Progress](user-progress-learned_thumb.png)](screenshots/user-progress-learned.png)
+  <a href="screenshots/user-homepage.png"><img alt="Home Page Reviews Due" src="screenshots/user-homepage_thumb.png"></a>
+  <a href="screenshots/user-homepage-nextreviewdue.png"><img alt="Home Page Next Review" src="screenshots/user-homepage-nextreviewdue_thumb.png"></a>
+  <a href="screenshots/user-deklination.png"><img alt="Deklination" src="screenshots/user-deklination_thumb.png"></a>
+  <a href="screenshots/user-genderquiz-question.png"><img alt="Gender Quiz Question" src="screenshots/user-genderquiz-question_thumb.png"></a>
+  <a href="screenshots/user-genderquiz-answer-correct.png"><img alt="Gender Quiz Correct Answer" src="screenshots/user-genderquiz-answer-correct_thumb.png"></a>
+  <a href="screenshots/user-genderquiz-answer-incorrect.png"><img alt="Gender Quiz Incorrect Answer" src="screenshots/user-genderquiz-answer-incorrect_thumb.png"></a>
+  <a href="screenshots/user-genderquiz-answer-exception.png"><img alt="Gender Quiz Exception Answer" src="screenshots/user-genderquiz-answer-exception_thumb.png"></a>
+  <a href="screenshots/user-genderquiz-answer-norule.png"><img alt="Gender Quiz NoRule Answer" src="screenshots/user-genderquiz-answer-norule_thumb.png"></a>
+  <a href="screenshots/user-progress.png"><img alt="Progress" src="screenshots/user-progress_thumb.png"></a>
+  <a href="screenshots/user-progress-reviewed.png"><img alt="Progress" src="screenshots/user-progress-reviewed_thumb.png"></a>
+  <a href="screenshots/user-progress-learned.png"><img alt="Progress" src="screenshots/user-progress-learned_thumb.png"></a>
 </details>
 
 <details>
   <summary>Mobile</summary>
-  [![Gender Quiz Dictionary Mobile](user-genderquiz-dictionary-mobile_thumb.png)](screenshots/user-genderquiz-dictionary-mobile.png)
-  [![Gender Quiz Dictionary Mobile](user-genderquiz-dictionary-mobile-rotated_thumb.png)](screenshots/user-genderquiz-dictionary-mobile-rotated.png)
+  <a href="screenshots/user-genderquiz-dictionary-mobile.png"><img alt="Gender Quiz Dictionary Mobile" src="screenshots/user-genderquiz-dictionary-mobile_thumb.png"></a>
+  <a href="screenshots/user-genderquiz-dictionary-mobile-rotated.png"><img alt="Gender Quiz Dictionary Mobile" src="screenshots/user-genderquiz-dictionary-mobile-rotated_thumb.png"></a>
 </details>
 
 ## How to Use
