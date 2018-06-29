@@ -35,3 +35,14 @@
     </div>
     {% endblock extra-content %}
 
+    {% block scripts %}
+    <script src="{% static 'js/ResizeSensor.js' %}"></script>
+    <script src="{% static 'js/ElementQueries.js' %}"></script>
+    <script>
+      var charts = document.getElementsByClassName('chart-container');
+      var chart = charts[0];
+      new ResizeSensor(chart, function() {
+        reposition_footer();
+      });
+    </script>
+    {% endblock scripts %}

@@ -32,22 +32,26 @@
     $( document ).ready(function() {
       $('.input-select').select();
       reposition_footer();
+      $('footer').removeClass('invisible');
     });
-
-	/*$(window).on('resize', function(e) {
-  	  clearTimeout(resizeTimer);
-  	  resizeTimer = setTimeout(function() {
-		reposition_footer();
-  	  }, 250);
-	});*/
 
     $( window ).resize(function() {
         reposition_footer();
     });
 
-	var resizeTimer;
 
     function reposition_footer() {
+        $footer = $('footer');
+        footerHeight = $footer.height();
+        if ( ($(document.body).height() + footerHeight) < $(window).height()) {
+          $footer.css({ position: "absolute" });
+        } else {
+          $footer.css({ position: "static" });
+        }
+    };
+
+	/*var resizeTimer;
+    function reposition_footer(ms) {
   	  clearTimeout(resizeTimer);
   	  resizeTimer = setTimeout(function() {
         $footer = $('footer');
@@ -58,6 +62,9 @@
           $footer.css({ position: "static" });
         }
         $('footer').removeClass('invisible');
-  	  }, 100);
-    }
+        console.log(ms);
+  	  }, ms);
+    };*/
+
     </script>
+
